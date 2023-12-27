@@ -1,72 +1,77 @@
-import React, { useEffect, useState } from 'react';
-import VirtualList from 'rc-virtual-list';
-import { Avatar, List, message } from 'antd';
-
-interface UserItem {
-    email: string;
-    gender: string;
-    name: {
-        first: string;
-        last: string;
-        title: string;
-    };
-    nat: string;
-    picture: {
-        large: string;
-        medium: string;
-        thumbnail: string;
-    };
-}
-
-const fakeDataUrl =
-    'https://randomuser.me/api/?results=20&inc=name,gender,email,nat,picture&noinfo';
-const ContainerHeight = 400;
+import React, {useState} from 'react';
+import {
+    Cell,
+    List,
+    Avatar,
+    Pagination, Placeholder
+} from "@vkontakte/vkui";
+import {
+    Icon28ClockOutline
+} from "@vkontakte/icons";
 
 const BotList: React.FC = () => {
-    const [data, setData] = useState<UserItem[]>([]);
 
-    const appendData = () => {
-        fetch(fakeDataUrl)
-            .then((res) => res.json())
-            .then((body) => {
-                setData(data.concat(body.results));
-                message.success(`${body.results.length} more items loaded!`);
-            });
+    const [draggingList, updateDraggingList] = React.useState([
+        'Проект, ',
+        'Hello',
+        'To',
+        'My',
+        'Little',
+        'Friend',
+    ]);
+
+
+    const onDragFinish  = ({from, to }:{ from:any; to:any } ) => {
+        const _list = [...draggingList];
+        _list.splice(from, 1);
+        _list.splice(to, 0, draggingList[from]);
+        updateDraggingList(_list);
     };
 
-    useEffect(() => {
-        appendData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
+
+    const [sizeY, setSizeY] = useState('compact');
+    const [currentPage, setCurrentPage] = useState<number | undefined>(1);
+    const [siblingCount, setSiblingCount] = useState(0);
+    const [boundaryCount, setBoundaryCount] = useState(1);
+    const [totalPages, setTotalPages] = useState(123);
+    const [disabled, setDisabled] = useState(false);
+
+    const handleChange = React.useCallback((page: React.SetStateAction<number | undefined>) => {
+        setCurrentPage(page);
     }, []);
 
-    const onScroll = (e: React.UIEvent<HTMLElement, UIEvent>) => {
-        if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
-            appendData();
-        }
-    };
+    const [text, setText] = useState('one');
 
-    return (
-        <List>
-            <VirtualList
-                data={data}
-                height={ContainerHeight}
-                itemHeight={47}
-                itemKey="email"
-                onScroll={onScroll}
-            >
-                {(item: UserItem) => (
-                    <List.Item key={item.email}>
-                        <List.Item.Meta
-                            avatar={<Avatar src={item.picture.large} />}
-                            title={<a href="https://ant.design">{item.name.last}</a>}
-                            description={item.email}
-                        />
-                        <div>Content</div>
-                    </List.Item>
-                )}
-            </VirtualList>
-        </List>
+
+
+    return ( <>
+                <List>
+                    {draggingList.map((item) => (
+                        <Cell key={item}
+                              before={<Avatar fallbackIcon={<Icon28ClockOutline />} />}
+                              draggable
+                              onDragFinish={onDragFinish}
+                              subtitle="Описание проекта Описание проекта Описание проекта Описание проекта Описание проекта Описание проекта Описание проекта Описание проекта Описание проекта Описание проекта Описание проекта Описание проекта"
+                        >
+                            {item}
+                        </Cell>
+                    ))}
+                </List>
+
+            <Placeholder><Pagination
+                             currentPage={currentPage}
+                             siblingCount={siblingCount}
+                             boundaryCount={boundaryCount}
+                             totalPages={totalPages}
+                             disabled={disabled}
+                             onChange={handleChange}
+            /></Placeholder>
+
+
+            </>
     );
+
 };
 
-export default BotList;
+export default BotList ;

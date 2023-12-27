@@ -1,8 +1,8 @@
 {
-  "name": "frontend-pwa",
-  "version": "0.1.0",
+  "name": "brazer_bot",
+  "version": "0.1.1",
   "private": true,
-  "homepage": "https://brazerbot.ru/frontend-pwa/build/",
+  "homepage": "https://brazerbot.ru/frontend/build/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -19,6 +19,8 @@
     "antd": "^5.11.5",
     "date-fns": "^2.30.0",
     "dayz": "^2.9.1",
+    "echarts": "^5.4.3",
+    "echarts-for-react": "^3.0.2",
     "lorem-ipsum": "^2.0.8",
     "moment": "^2.29.4",
     "react": "^18.2.0",

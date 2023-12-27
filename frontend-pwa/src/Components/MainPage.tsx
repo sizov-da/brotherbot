@@ -1,208 +1,231 @@
-import React, {useEffect, useState} from 'react';
+import React from "react";
 import {
-    Outlet,
-    useLocation,
+    // useLocation,
     useNavigate
 } from 'react-router-dom';
 import {
-    MenuFoldOutlined,
-    MenuUnfoldOutlined,
-    UploadOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
-    CustomerServiceOutlined,
-    CommentOutlined
-} from '@ant-design/icons';
-import {
-    Layout, Menu,
-    // Button,
-    theme, Breadcrumb, Button, FloatButton
-} from 'antd';
-import Sider from "antd/es/layout/Sider";
-import {
-    Panel, PanelHeader,
-    Platform,
+    Cell,
+    Counter,
+    Epic,
+    Group,
+    Panel,
+    PanelHeader,
+    PanelHeaderBack,
+    Placeholder, Platform,
     SplitCol,
     SplitLayout,
-    useAdaptivityConditionalRender,
-    usePlatform,
+    Tabbar,
+    TabbarItem, useAdaptivityConditionalRender, usePlatform,
     View
-} from '@vkontakte/vkui';
+} from "@vkontakte/vkui";
+import {
+    Icon28ClipOutline,
+    Icon28MessageOutline, Icon28NewsfeedOutline,
+    Icon28ServicesOutline,
+    Icon28UserCircleOutline
+} from "@vkontakte/icons";
+import {Badge} from "antd";
+import BotList from "./BotList";
+import BotCalendar from "./BotCalendar";
 
 
-const {Header, Content, Footer} = Layout;
 const MainPage = () => {
+
+
+
     const platform = usePlatform();
-    const location = useLocation();
+    // const location = useLocation();
     const navigate = useNavigate();
 
-    const isVKCOM = platform === Platform.VKCOM;
-    const {viewWidth} = useAdaptivityConditionalRender();
-
-
-    console.log('#1', platform)
-    console.log('#1', platform)
-    useEffect(() => {
-        console.log('Current location is ', location);
-    }, [location]);
-
-    const [collapsed, setCollapsed] = useState(false);
-    const {
-        token: {colorBgContainer},
-    } = theme.useToken();
-
-
-    const MainScreens = () => {
-        return (
-            <View activePanel="profile">
-                <Panel id="profile">
-                    <Layout>
-                        <Content className="site-layout" style={{padding: '0 50px'}}>
-                            <Breadcrumb style={{margin: '16px 0'}}>
-                                {/*<Breadcrumb.Item>Home</Breadcrumb.Item>*/}
-                                {/*<Breadcrumb.Item>{location.pathname}</Breadcrumb.Item>*/}
-                            </Breadcrumb>
-                            <div style={{padding: 24, minHeight: 380, background: colorBgContainer}}>
-                                <Outlet/>
-                                <>
-                                    <FloatButton.Group
-                                        trigger="hover"
-                                        type="primary"
-                                        style={{right: 23}}
-                                        icon={<CustomerServiceOutlined/>}
-                                    >
-                                        <FloatButton/>
-                                        <FloatButton icon={<CommentOutlined/>}/>
-                                    </FloatButton.Group>
-                                </>
-
-                            </div>
-                        </Content>
-                        <Footer style={{textAlign: 'center'}}>Ant Design ©2023 Created by Ant UED</Footer>
-                    </Layout>
-                </Panel>
-            </View>
-        );
+    const { viewWidth } = useAdaptivityConditionalRender();
+    const [activeStory, setActiveStory] = React.useState('Bot-List');
+    const activeStoryStyles = {
+        backgroundColor: 'var(--vkui--color_background_secondary)',
+        borderRadius: 8,
     };
-
-    const SideCol = () => {
-        return <Panel id="nav">
-            <Layout>
-                <Sider trigger={null} collapsible collapsed={collapsed}>
-                    <div className="demo-logo-vertical"/>
-                    <Menu
-                        theme="dark"
-                        mode="inline"
-                        defaultSelectedKeys={['list']}
-                        items={[
-                            {
-                                key: 'list',
-                                icon: <UserOutlined/>,
-                                label: 'Список',
-                            },
-                            {
-                                key: 'two',
-                                icon: <VideoCameraOutlined/>,
-                                label: 'Календарь',
-                            },
-                            {
-                                key: 'BotCalendarV2',
-                                icon: <UploadOutlined/>,
-                                label: 'Ntcn',
-                            },
-                        ]}
-                        onClick={x => {
-                            console.log('#1', x)
-                            navigate(x.key, {replace: false})
-                        }}
-                    />
-                </Sider>
-            </Layout>
-        </Panel>;
+    const onStoryChange = (e:any) => {
+        navigate(e.currentTarget.dataset.story , {replace: false})
+        setActiveStory(e.currentTarget.dataset.story)
     };
+    const hasHeader = platform !== Platform.VKCOM;
 
     return (
-        <>
-            {/*<Layout>*/}
-            <SplitLayout header={!isVKCOM && <PanelHeader separator={false}/>}>
-                {viewWidth.tabletPlus && (
-                    <SplitCol className={viewWidth.tabletPlus.className}>
-                        <SideCol/>
-                        {/*<Header*/}
-                        {/*    style={{*/}
-                        {/*        position: 'sticky',*/}
-                        {/*        top: 0,*/}
-                        {/*        zIndex: 1,*/}
-                        {/*        width: '100%',*/}
-                        {/*        display: 'flex',*/}
-                        {/*        alignItems: 'center',*/}
-                        {/*    }}*/}
-                        {/*>*/}
-                        {/*    <div className="demo-logo"/>*/}
-                        {/*    <Button*/}
-                        {/*        type="text"*/}
-                        {/*        icon={collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}*/}
-                        {/*        onClick={() => setCollapsed(!collapsed)}*/}
-                        {/*        style={{*/}
-                        {/*            fontSize: '16px',*/}
-                        {/*            width: 64,*/}
-                        {/*            height: 64,*/}
-                        {/*            color: '#ffffffa6'*/}
-                        {/*        }}*/}
-                        {/*    />*/}
-
-
-                        {/*    <Menu*/}
-                        {/*        theme="dark"*/}
-                        {/*        mode="horizontal"*/}
-                        {/*        defaultSelectedKeys={['2']}*/}
-                        {/*        items={new Array(3).fill(null).map((_, index) => ({*/}
-                        {/*            key: String(index + 1),*/}
-                        {/*            label: `nav ${index + 1}`,*/}
-                        {/*        }))}*/}
-                        {/*    />*/}
-                        {/*</Header>*/}
-                        {/*<Sider trigger={null} collapsible collapsed={collapsed}>*/}
-                        {/*    <div className="demo-logo-vertical"/>*/}
-                        {/*    <Menu*/}
-                        {/*        theme="dark"*/}
-                        {/*        mode="inline"*/}
-                        {/*        defaultSelectedKeys={['list']}*/}
-                        {/*        items={[*/}
-                        {/*            {*/}
-                        {/*                key: 'list',*/}
-                        {/*                icon: <UserOutlined/>,*/}
-                        {/*                label: 'Список',*/}
-                        {/*            },*/}
-                        {/*            {*/}
-                        {/*                key: 'two',*/}
-                        {/*                icon: <VideoCameraOutlined/>,*/}
-                        {/*                label: 'Календарь',*/}
-                        {/*            },*/}
-                        {/*            {*/}
-                        {/*                key: 'BotCalendarV2',*/}
-                        {/*                icon: <UploadOutlined/>,*/}
-                        {/*                label: 'Ntcn',*/}
-                        {/*            },*/}
-                        {/*        ]}*/}
-                        {/*        onClick={x => {*/}
-                        {/*            console.log('#1', x)*/}
-                        {/*            navigate(x.key, {replace: false})*/}
-                        {/*        }}*/}
-                        {/*    />*/}
-                        {/*</Sider>*/}
-
-                    </SplitCol>)}
-                <SplitCol>
-                    <MainScreens/>
+        <SplitLayout
+            header={hasHeader && <PanelHeader separator={false} />}
+            style={{ justifyContent: 'center' }}
+        >
+            {viewWidth.tabletPlus && (
+                <SplitCol className={viewWidth.tabletPlus.className} fixed width={280} maxWidth={280}>
+                    <Panel>
+                        {hasHeader && <PanelHeader />}
+                        <Group>
+                            <Cell
+                                disabled={activeStory === 'Bot-List'}
+                                style={activeStory === 'Bot-List' ? activeStoryStyles : undefined}
+                                data-story="Bot-List"
+                                onClick={onStoryChange}
+                                before={<Icon28NewsfeedOutline />}
+                            >
+                                Бот-лист
+                            </Cell>
+                            <Cell
+                                disabled={activeStory === 'BotCalendar'}
+                                style={activeStory === 'BotCalendar' ? activeStoryStyles : undefined}
+                                data-story="BotCalendar"
+                                onClick={onStoryChange}
+                                before={<Icon28ServicesOutline />}
+                            >
+                                Bot Calendar
+                            </Cell>
+                            {/*<Cell*/}
+                            {/*    disabled={activeStory === 'messages'}*/}
+                            {/*    style={activeStory === 'messages' ? activeStoryStyles : undefined}*/}
+                            {/*    data-story="messages"*/}
+                            {/*    onClick={onStoryChange}*/}
+                            {/*    before={<Icon28MessageOutline />}*/}
+                            {/*>*/}
+                            {/*    messages*/}
+                            {/*</Cell>*/}
+                            {/*<Cell*/}
+                            {/*    disabled={activeStory === 'clips'}*/}
+                            {/*    style={activeStory === 'clips' ? activeStoryStyles : undefined}*/}
+                            {/*    data-story="clips"*/}
+                            {/*    onClick={onStoryChange}*/}
+                            {/*    before={<Icon28ClipOutline />}*/}
+                            {/*>*/}
+                            {/*    clips*/}
+                            {/*</Cell>*/}
+                            <Cell
+                                disabled={activeStory === 'profile'}
+                                style={activeStory === 'profile' ? activeStoryStyles : undefined}
+                                data-story="profile"
+                                onClick={onStoryChange}
+                                before={<Icon28UserCircleOutline />}
+                            >
+                                profile
+                            </Cell>
+                        </Group>
+                    </Panel>
                 </SplitCol>
+            )}
 
-            </SplitLayout>
-            {/*<Footer style={{textAlign: 'center'}}>Ant Design ©2023 Created by Ant UED</Footer>*/}
+            <SplitCol width="100%" maxWidth="560px" stretchedOnMobile autoSpaced>
+                <Epic
+                    activeStory={activeStory}
+                    tabbar={
+                        viewWidth.tabletMinus && (
+                            <Tabbar className={viewWidth.tabletMinus.className}>
+                                <TabbarItem
+                                    onClick={onStoryChange}
+                                    selected={activeStory === 'Bot-List'}
+                                    data-story="Bot-List"
+                                    indicator={
+                                        <Counter size="s" mode="prominent">
+                                            12
+                                        </Counter>
+                                    }
+                                    text="Бот-лист"
+                                >
+                                    <Icon28NewsfeedOutline />
+                                </TabbarItem>
+                                <TabbarItem
+                                    onClick={onStoryChange}
+                                    selected={activeStory === 'BotCalendar'}
+                                    data-story="BotCalendar"
+                                    text="Бот-календарь"
+                                >
+                                    <Icon28ServicesOutline />
+                                </TabbarItem>
+                                {/*<TabbarItem*/}
+                                {/*    onClick={onStoryChange}*/}
+                                {/*    selected={activeStory === 'messages'}*/}
+                                {/*    data-story="messages"*/}
+                                {/*    indicator={*/}
+                                {/*        <Counter size="s" mode="prominent">*/}
+                                {/*            12*/}
+                                {/*        </Counter>*/}
+                                {/*    }*/}
+                                {/*    text="Сообщения"*/}
+                                {/*>*/}
+                                {/*    <Icon28MessageOutline />*/}
+                                {/*</TabbarItem>*/}
+                                {/*<TabbarItem*/}
+                                {/*    onClick={onStoryChange}*/}
+                                {/*    selected={activeStory === 'clips'}*/}
+                                {/*    data-story="clips"*/}
+                                {/*    text="Клипы"*/}
+                                {/*>*/}
+                                {/*    <Icon28ClipOutline />*/}
+                                {/*</TabbarItem>*/}
+                                <TabbarItem
+                                    onClick={onStoryChange}
+                                    selected={activeStory === 'profile'}
+                                    data-story="profile"
+                                    indicator={<Badge  />}
+                                    text="Профиль"
+                                >
+                                    <Icon28UserCircleOutline />
+                                </TabbarItem>
+                            </Tabbar>
+                        )
+                    }
+                >
+                    <View id="Bot-List" activePanel="Bot-List">
+                        <Panel id="Bot-List">
+                            <PanelHeader before={<PanelHeaderBack />}>Бот-лист</PanelHeader>
+                            <Group style={{ height: '1000px' }}>
+                                {/*<Placeholder icon={<Icon56NewsfeedOutline width={56} height={56} />} />*/}
+                                <BotList/>
+                            </Group>
+                        </Panel>
+                    </View>
+
+                    <View id="BotCalendar" activePanel="BotCalendar">
+                        <Panel id="BotCalendar">
+                            <PanelHeader before={<PanelHeaderBack />}>Бот-календарь</PanelHeader>
+                            <Group style={{ height: '1000px' }}>
+                                <BotCalendar/>
+                            </Group>
+                        </Panel>
+                    </View>
 
 
-            {/*</Layout>*/}
-        </>
-    )
+                    <View id="messages" activePanel="messages">
+                        <Panel id="messages">
+                            <PanelHeader before={<PanelHeaderBack />}>Сообщения</PanelHeader>
+                            <Group style={{ height: '1000px' }}>
+                                <Placeholder icon={<Icon28MessageOutline width={56} height={56} />}></Placeholder>
+                                #3
+                            </Group>
+                        </Panel>
+                    </View>
+                    <View id="clips" activePanel="clips">
+                        <Panel id="clips">
+                            <PanelHeader before={<PanelHeaderBack />}>Клипы</PanelHeader>
+                            <Group style={{ height: '1000px' }}>
+                                <Placeholder icon={<Icon28ClipOutline width={56} height={56} />}></Placeholder>
+                                #4
+                            </Group>
+                        </Panel>
+                    </View>
+                    <View id="profile" activePanel="profile">
+                        <Panel id="profile">
+                            <PanelHeader before={<PanelHeaderBack />}>Профиль</PanelHeader>
+                            <Group style={{ height: '1000px' }}>
+                                <Placeholder
+                                    icon={<Icon28UserCircleOutline width={56} height={56} />}
+                                ></Placeholder>
+                                #5
+                                1) мои достижения
+                                2) проваленные сроки
+                                3) время по проектам (полочкам)
+                            </Group>
+                        </Panel>
+                    </View>
+                </Epic>
+            </SplitCol>
+        </SplitLayout>
+    );
 };
+
 export default MainPage;

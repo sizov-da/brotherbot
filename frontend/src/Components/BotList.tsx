@@ -30,18 +30,17 @@ const BotList: React.FC = () => {
 
 
 
-    const [sizeY, setSizeY] = useState('compact');
+
     const [currentPage, setCurrentPage] = useState<number | undefined>(1);
-    const [siblingCount, setSiblingCount] = useState(0);
-    const [boundaryCount, setBoundaryCount] = useState(1);
-    const [totalPages, setTotalPages] = useState(123);
-    const [disabled, setDisabled] = useState(false);
+    const [siblingCount, ] = useState(0);
+    const [boundaryCount, ] = useState(1);
+    const [totalPages, ] = useState(123);
+    const [disabled, ] = useState(false);
 
     const handleChange = React.useCallback((page: React.SetStateAction<number | undefined>) => {
         setCurrentPage(page);
     }, []);
 
-    const [text, setText] = useState('one');
 
 
 
