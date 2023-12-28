@@ -3,10 +3,9 @@ import {
     FormItem,
     FormLayout,
     FormLayoutGroup,
-    LocaleProvider,
-    Placeholder
+    LocaleProvider
 } from "@vkontakte/vkui";
-import CalendarModule from "./CalendarModule/CalendarModule";
+import CalendarModule from "./Calendar/CalendarModule";
 
 
 
@@ -16,29 +15,12 @@ const BotCalendar = () => {
 
     const [locale, ] = useState('ru');
 
-    // CalendarModule()
     return (
         <FormLayout>
             <FormLayoutGroup mode="vertical">
-
                 <FormItem>
                     <LocaleProvider value={locale}>
-                        <Placeholder>
-
-                        {/*<Calendar*/}
-                        {/*    value={value}*/}
-                        {/*    onChange={setValue}*/}
-                        {/*    enableTime={enableTime}*/}
-                        {/*    disablePast={disablePast}*/}
-                        {/*    disableFuture={disableFuture}*/}
-                        {/*    disablePickers={disablePickers}*/}
-                        {/*    showNeighboringMonth={showNeighboringMonth}*/}
-                        {/*    size={size}*/}
-                        {/*    listenDayChangesForUpdate={listenDayChangesForUpdate}*/}
-                        {/*/>*/}
-                                <CalendarModule/>
-                            {/*<div id={'main'}></div>*/}
-                        </Placeholder>
+                        <CalendarModule/>
                     </LocaleProvider>
                 </FormItem>
             </FormLayoutGroup>
@@ -46,5 +28,4 @@ const BotCalendar = () => {
     );
 };
 
-// <BotCalendarV2 />;
 export default BotCalendar ;

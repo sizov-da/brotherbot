@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactEcharts from './react-echart/index';
+import ReactEcharts from '../react-echart';
 
 const Demo1 = {
   xAxis: {
