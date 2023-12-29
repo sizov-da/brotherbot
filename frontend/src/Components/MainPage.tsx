@@ -25,8 +25,13 @@ import {
     Icon28UserCircleOutline
 } from "@vkontakte/icons";
 import {Badge} from "antd";
-import BotList from "./BotList";
-import BotCalendar from "./BotCalendar";
+import BotList from "./BotList/BotList";
+import BotCalendarPage from "./Calendar/BotCalendarPage";
+import UserProfile from "./UserProfile/UserProfile";
+// import { CommentOutlined, CustomerServiceOutlined } from '@ant-design/icons';
+
+
+
 
 
 const MainPage = () => {
@@ -69,32 +74,14 @@ const MainPage = () => {
                                 Бот-лист
                             </Cell>
                             <Cell
-                                disabled={activeStory === 'BotCalendar'}
-                                style={activeStory === 'BotCalendar' ? activeStoryStyles : undefined}
-                                data-story="BotCalendar"
+                                disabled={activeStory === 'BotCalendarPage'}
+                                style={activeStory === 'BotCalendarPage' ? activeStoryStyles : undefined}
+                                data-story="BotCalendarPage"
                                 onClick={onStoryChange}
                                 before={<Icon28ServicesOutline />}
                             >
                                 Bot Calendar
                             </Cell>
-                            {/*<Cell*/}
-                            {/*    disabled={activeStory === 'messages'}*/}
-                            {/*    style={activeStory === 'messages' ? activeStoryStyles : undefined}*/}
-                            {/*    data-story="messages"*/}
-                            {/*    onClick={onStoryChange}*/}
-                            {/*    before={<Icon28MessageOutline />}*/}
-                            {/*>*/}
-                            {/*    messages*/}
-                            {/*</Cell>*/}
-                            {/*<Cell*/}
-                            {/*    disabled={activeStory === 'clips'}*/}
-                            {/*    style={activeStory === 'clips' ? activeStoryStyles : undefined}*/}
-                            {/*    data-story="clips"*/}
-                            {/*    onClick={onStoryChange}*/}
-                            {/*    before={<Icon28ClipOutline />}*/}
-                            {/*>*/}
-                            {/*    clips*/}
-                            {/*</Cell>*/}
                             <Cell
                                 disabled={activeStory === 'profile'}
                                 style={activeStory === 'profile' ? activeStoryStyles : undefined}
@@ -130,33 +117,12 @@ const MainPage = () => {
                                 </TabbarItem>
                                 <TabbarItem
                                     onClick={onStoryChange}
-                                    selected={activeStory === 'BotCalendar'}
-                                    data-story="BotCalendar"
+                                    selected={activeStory === 'BotCalendarPage'}
+                                    data-story="BotCalendarPage"
                                     text="Бот-календарь"
                                 >
                                     <Icon28ServicesOutline />
                                 </TabbarItem>
-                                {/*<TabbarItem*/}
-                                {/*    onClick={onStoryChange}*/}
-                                {/*    selected={activeStory === 'messages'}*/}
-                                {/*    data-story="messages"*/}
-                                {/*    indicator={*/}
-                                {/*        <Counter size="s" mode="prominent">*/}
-                                {/*            12*/}
-                                {/*        </Counter>*/}
-                                {/*    }*/}
-                                {/*    text="Сообщения"*/}
-                                {/*>*/}
-                                {/*    <Icon28MessageOutline />*/}
-                                {/*</TabbarItem>*/}
-                                {/*<TabbarItem*/}
-                                {/*    onClick={onStoryChange}*/}
-                                {/*    selected={activeStory === 'clips'}*/}
-                                {/*    data-story="clips"*/}
-                                {/*    text="Клипы"*/}
-                                {/*>*/}
-                                {/*    <Icon28ClipOutline />*/}
-                                {/*</TabbarItem>*/}
                                 <TabbarItem
                                     onClick={onStoryChange}
                                     selected={activeStory === 'profile'}
@@ -173,18 +139,39 @@ const MainPage = () => {
                     <View id="Bot-List" activePanel="Bot-List">
                         <Panel id="Bot-List">
                             <PanelHeader before={<PanelHeaderBack />}>Бот-лист</PanelHeader>
-                            <Group style={{ height: '1000px' }}>
-                                {/*<Placeholder icon={<Icon56NewsfeedOutline width={56} height={56} />} />*/}
-                                <BotList/>
+                            <Group
+                                // style={{ height: '1000px' }}
+                            >
+                                  <BotList/>
+                                {/*<FloatButton.Group*/}
+                                {/*    trigger="hover"*/}
+                                {/*    type="primary"*/}
+                                {/*    style={{ right: 94 }}*/}
+                                {/*    icon={<CustomerServiceOutlined />}*/}
+                                {/*>*/}
+                                {/*    <FloatButton />*/}
+                                {/*    <FloatButton icon={<CommentOutlined />} />*/}
+                                {/*</FloatButton.Group>*/}
                             </Group>
                         </Panel>
                     </View>
 
-                    <View id="BotCalendar" activePanel="BotCalendar">
-                        <Panel id="BotCalendar">
+                    <View id="BotCalendarPage" activePanel="BotCalendarPage">
+                        <Panel id="BotCalendarPage">
                             <PanelHeader before={<PanelHeaderBack />}>Бот-календарь</PanelHeader>
-                            <Group style={{ height: '1000px' }}>
-                                <BotCalendar/>
+                            <Group
+                                // style={{ height: '1000px' }}
+                            >
+                                <BotCalendarPage/>
+                                {/*<FloatButton.Group*/}
+                                {/*    trigger="hover"*/}
+                                {/*    type="primary"*/}
+                                {/*    style={{ right: 94 }}*/}
+                                {/*    icon={<CustomerServiceOutlined />}*/}
+                                {/*>*/}
+                                {/*    <FloatButton />*/}
+                                {/*    <FloatButton icon={<CommentOutlined />} />*/}
+                                {/*</FloatButton.Group>*/}
                             </Group>
                         </Panel>
                     </View>
@@ -212,13 +199,7 @@ const MainPage = () => {
                         <Panel id="profile">
                             <PanelHeader before={<PanelHeaderBack />}>Профиль</PanelHeader>
                             <Group style={{ height: '1000px' }}>
-                                <Placeholder
-                                    icon={<Icon28UserCircleOutline width={56} height={56} />}
-                                ></Placeholder>
-                                #5
-                                1) мои достижения
-                                2) проваленные сроки
-                                3) время по проектам (полочкам)
+                                <UserProfile></UserProfile>
                             </Group>
                         </Panel>
                     </View>

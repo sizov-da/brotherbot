@@ -26,7 +26,7 @@ import {
 } from "@vkontakte/icons";
 import {Badge} from "antd";
 import BotList from "./BotList";
-import BotCalendar from "./BotCalendar";
+import BotCalendarPage from "./BotCalendar";
 
 
 const MainPage = () => {
@@ -71,7 +71,7 @@ const MainPage = () => {
                             <Cell
                                 disabled={activeStory === 'BotCalendar'}
                                 style={activeStory === 'BotCalendar' ? activeStoryStyles : undefined}
-                                data-story="BotCalendar"
+                                data-story="BotCalendarPage"
                                 onClick={onStoryChange}
                                 before={<Icon28ServicesOutline />}
                             >
@@ -131,7 +131,7 @@ const MainPage = () => {
                                 <TabbarItem
                                     onClick={onStoryChange}
                                     selected={activeStory === 'BotCalendar'}
-                                    data-story="BotCalendar"
+                                    data-story="BotCalendarPage"
                                     text="Бот-календарь"
                                 >
                                     <Icon28ServicesOutline />
@@ -180,7 +180,7 @@ const MainPage = () => {
                         </Panel>
                     </View>
 
-                    <View id="BotCalendar" activePanel="BotCalendar">
+                    <View id="BotCalendar" activePanel="BotCalendarPage">
                         <Panel id="BotCalendar">
                             <PanelHeader before={<PanelHeaderBack />}>Бот-календарь</PanelHeader>
                             <Group style={{ height: '1000px' }}>

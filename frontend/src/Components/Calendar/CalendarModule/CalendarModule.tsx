@@ -1,9 +1,6 @@
 import React, {useState} from "react";
-
-
-// import EcharGraph from "./EcharGraph";
-import EcharCalendar from "./CalendarModule/EcharCalendar";
-import { Pagination, Placeholder, DatePicker,Text} from "@vkontakte/vkui";
+import EcharCalendar from "./EcharCalendar";
+import { Pagination, Placeholder, DatePicker} from "@vkontakte/vkui";
 
 
 
@@ -13,6 +10,7 @@ const CalendarModule = () => {
    const handleChange = React.useCallback((page: React.SetStateAction<number | undefined>) => {
       setCurrentPage(page);
    }, []);
+
 
 
    return(<>

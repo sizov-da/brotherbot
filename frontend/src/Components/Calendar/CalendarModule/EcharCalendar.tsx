@@ -4,13 +4,10 @@ import * as echarts from 'echarts';
 
 
 export default function EcharCalendar() {
+
+
 type EChartsOption = echarts.EChartsOption;
-
-
     let option: EChartsOption;
-
-// This example requires ECharts v5.4.0 or later
-
 const cellSize = [50, 50];
 const pieRadius = 20;
 
@@ -91,9 +88,12 @@ option = {
                     return echarts.time.format(params.value[0], '{dd}', false);
                 },
                 offset: [-cellSize[0] / 2 + 10, -cellSize[1] / 2 + 10],
-                fontSize: 8,
-                fontWeight: 100,
-                color: '#000000'
+                fontSize: 10,
+                fontWeight: 600,
+                color: '#f8f8f8',
+                backgroundColor: 'rgba(0,0,0,0.66)',
+                borderRadius: 20,
+                padding:3,
             },
             data: scatterData
         },

@@ -5,13 +5,13 @@ import {
     FormLayoutGroup,
     LocaleProvider
 } from "@vkontakte/vkui";
-import CalendarModule from "./Calendar/CalendarModule";
+import CalendarModule from "./CalendarModule/CalendarModule";
 
 
 
 
 
-const BotCalendar = () => {
+const BotCalendarPage = () => {
 
     const [locale, ] = useState('ru');
 
@@ -28,4 +28,4 @@ const BotCalendar = () => {
     );
 };
 
-export default BotCalendar ;
+export default BotCalendarPage ;

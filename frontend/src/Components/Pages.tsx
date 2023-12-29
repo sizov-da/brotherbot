@@ -1,6 +1,6 @@
 import { loremIpsum } from 'lorem-ipsum';
 import { ReactElement, JSXElementConstructor, ReactNode } from 'react';
-import BotList from "./BotList";
+import BotList from "./BotList/BotList";
 
 const BuildPage = (index: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined) => (
     <>
