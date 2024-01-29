@@ -1,1 +1,1 @@
-# brotherbot frontend
+# brotherbot ArangoDB

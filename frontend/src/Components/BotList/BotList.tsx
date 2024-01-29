@@ -4,7 +4,10 @@ import {
     List,
     Button,
     Avatar,
-    Pagination, Placeholder, Header, Link, Group
+    Pagination,
+    Placeholder,
+    Header,
+    Group
 } from "@vkontakte/vkui";
 import {
     Icon24Add,

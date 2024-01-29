@@ -1,5 +1,6 @@
 import React from "react";
 import {
+    useLocation,
     // useLocation,
     useNavigate
 } from 'react-router-dom';
@@ -39,19 +40,23 @@ const MainPage = () => {
 
 
     const platform = usePlatform();
-    // const location = useLocation();
+    const location = useLocation();
     const navigate = useNavigate();
 
     const { viewWidth } = useAdaptivityConditionalRender();
-    const [activeStory, setActiveStory] = React.useState('Bot-List');
+    const [activeStory, setActiveStory] = React.useState(location.pathname);
     const activeStoryStyles = {
         backgroundColor: 'var(--vkui--color_background_secondary)',
         borderRadius: 8,
     };
     const onStoryChange = (e:any) => {
-        navigate(e.currentTarget.dataset.story , {replace: false})
+
         setActiveStory(e.currentTarget.dataset.story)
+        navigate(e.currentTarget.dataset.story , {replace: false})
     };
+    console.log("#1",location.pathname);
+    
+    // setActiveStory(location.pathname)
     const hasHeader = platform !== Platform.VKCOM;
 
     return (
@@ -65,27 +70,27 @@ const MainPage = () => {
                         {hasHeader && <PanelHeader />}
                         <Group>
                             <Cell
-                                disabled={activeStory === 'Bot-List'}
-                                style={activeStory === 'Bot-List' ? activeStoryStyles : undefined}
-                                data-story="Bot-List"
+                                disabled={activeStory === '/Bot-List'}
+                                style={activeStory === '/Bot-List' ? activeStoryStyles : undefined}
+                                data-story="/Bot-List"
                                 onClick={onStoryChange}
                                 before={<Icon28NewsfeedOutline />}
                             >
                                 Бот-лист
                             </Cell>
                             <Cell
-                                disabled={activeStory === 'BotCalendarPage'}
-                                style={activeStory === 'BotCalendarPage' ? activeStoryStyles : undefined}
-                                data-story="BotCalendarPage"
+                                disabled={activeStory === '/BotCalendarPage'}
+                                style={activeStory === '/BotCalendarPage' ? activeStoryStyles : undefined}
+                                data-story="/BotCalendarPage"
                                 onClick={onStoryChange}
                                 before={<Icon28ServicesOutline />}
                             >
                                 Bot Calendar
                             </Cell>
                             <Cell
-                                disabled={activeStory === 'profile'}
-                                style={activeStory === 'profile' ? activeStoryStyles : undefined}
-                                data-story="profile"
+                                disabled={activeStory === '/profile'}
+                                style={activeStory === '/profile' ? activeStoryStyles : undefined}
+                                data-story="/profile"
                                 onClick={onStoryChange}
                                 before={<Icon28UserCircleOutline />}
                             >
@@ -104,8 +109,8 @@ const MainPage = () => {
                             <Tabbar className={viewWidth.tabletMinus.className}>
                                 <TabbarItem
                                     onClick={onStoryChange}
-                                    selected={activeStory === 'Bot-List'}
-                                    data-story="Bot-List"
+                                    selected={activeStory === '/Bot-List'}
+                                    data-story="/Bot-List"
                                     indicator={
                                         <Counter size="s" mode="prominent">
                                             12
@@ -117,16 +122,16 @@ const MainPage = () => {
                                 </TabbarItem>
                                 <TabbarItem
                                     onClick={onStoryChange}
-                                    selected={activeStory === 'BotCalendarPage'}
-                                    data-story="BotCalendarPage"
+                                    selected={activeStory === '/BotCalendarPage'}
+                                    data-story="/BotCalendarPage"
                                     text="Бот-календарь"
                                 >
                                     <Icon28ServicesOutline />
                                 </TabbarItem>
                                 <TabbarItem
                                     onClick={onStoryChange}
-                                    selected={activeStory === 'profile'}
-                                    data-story="profile"
+                                    selected={activeStory === '/profile'}
+                                    data-story="/profile"
                                     indicator={<Badge  />}
                                     text="Профиль"
                                 >
@@ -136,42 +141,24 @@ const MainPage = () => {
                         )
                     }
                 >
-                    <View id="Bot-List" activePanel="Bot-List">
-                        <Panel id="Bot-List">
+                    <View id="/Bot-List" activePanel="/Bot-List">
+                        <Panel id="/Bot-List">
                             <PanelHeader before={<PanelHeaderBack />}>Бот-лист</PanelHeader>
                             <Group
                                 // style={{ height: '1000px' }}
                             >
                                   <BotList/>
-                                {/*<FloatButton.Group*/}
-                                {/*    trigger="hover"*/}
-                                {/*    type="primary"*/}
-                                {/*    style={{ right: 94 }}*/}
-                                {/*    icon={<CustomerServiceOutlined />}*/}
-                                {/*>*/}
-                                {/*    <FloatButton />*/}
-                                {/*    <FloatButton icon={<CommentOutlined />} />*/}
-                                {/*</FloatButton.Group>*/}
                             </Group>
                         </Panel>
                     </View>
 
-                    <View id="BotCalendarPage" activePanel="BotCalendarPage">
-                        <Panel id="BotCalendarPage">
+                    <View id="/BotCalendarPage" activePanel="/BotCalendarPage">
+                        <Panel id="/BotCalendarPage">
                             <PanelHeader before={<PanelHeaderBack />}>Бот-календарь</PanelHeader>
                             <Group
                                 // style={{ height: '1000px' }}
                             >
                                 <BotCalendarPage/>
-                                {/*<FloatButton.Group*/}
-                                {/*    trigger="hover"*/}
-                                {/*    type="primary"*/}
-                                {/*    style={{ right: 94 }}*/}
-                                {/*    icon={<CustomerServiceOutlined />}*/}
-                                {/*>*/}
-                                {/*    <FloatButton />*/}
-                                {/*    <FloatButton icon={<CommentOutlined />} />*/}
-                                {/*</FloatButton.Group>*/}
                             </Group>
                         </Panel>
                     </View>
@@ -195,8 +182,8 @@ const MainPage = () => {
                             </Group>
                         </Panel>
                     </View>
-                    <View id="profile" activePanel="profile">
-                        <Panel id="profile">
+                    <View id="/profile" activePanel="/profile">
+                        <Panel id="/profile">
                             <PanelHeader before={<PanelHeaderBack />}>Профиль</PanelHeader>
                             <Group style={{ height: '1000px' }}>
                                 <UserProfile></UserProfile>
