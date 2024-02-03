@@ -9,6 +9,7 @@ services:
     volumes:
       - arangodb_data_container:/var/lib/arangodb3
       - arangodb_apps_data_container:/var/lib/arangodb3-apps
+    restart: always
 
 volumes:
   arangodb_data_container:
