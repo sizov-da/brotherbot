@@ -22,13 +22,14 @@ import {
 import {
     Icon28ClipOutline,
     Icon28MessageOutline, Icon28NewsfeedOutline,
-    Icon28ServicesOutline,
+    Icon28ServicesOutline, Icon28Settings,
     Icon28UserCircleOutline
 } from "@vkontakte/icons";
 import {Badge} from "antd";
 import BotList from "./BotList/BotList";
 import BotCalendarPage from "./Calendar/BotCalendarPage";
 import UserProfile from "./UserProfile/UserProfile";
+import SettingPage from "./settings/SettingPage";
 // import { CommentOutlined, CustomerServiceOutlined } from '@ant-design/icons';
 
 
@@ -96,6 +97,15 @@ const MainPage = () => {
                             >
                                 profile
                             </Cell>
+                            <Cell
+                                disabled={activeStory === '/settings'}
+                                style={activeStory === '/settings' ? activeStoryStyles : undefined}
+                                data-story="/settings"
+                                onClick={onStoryChange}
+                                before={<Icon28Settings />}
+                            >
+                                settings
+                            </Cell>
                         </Group>
                     </Panel>
                 </SplitCol>
@@ -137,6 +147,15 @@ const MainPage = () => {
                                 >
                                     <Icon28UserCircleOutline />
                                 </TabbarItem>
+                                <TabbarItem
+                                    onClick={onStoryChange}
+                                    selected={activeStory === '/settings'}
+                                    data-story="/settings"
+                                    indicator={<Badge  />}
+                                    text="settings"
+                                >
+                                    <Icon28Settings />
+                                </TabbarItem>
                             </Tabbar>
                         )
                     }
@@ -144,11 +163,7 @@ const MainPage = () => {
                     <View id="/Bot-List" activePanel="/Bot-List">
                         <Panel id="/Bot-List">
                             <PanelHeader before={<PanelHeaderBack />}>Бот-лист</PanelHeader>
-                            <Group
-                                // style={{ height: '1000px' }}
-                            >
                                   <BotList/>
-                            </Group>
                         </Panel>
                     </View>
 
@@ -188,6 +203,15 @@ const MainPage = () => {
                             <Group style={{ height: '1000px' }}>
                                 <UserProfile></UserProfile>
                             </Group>
+                        </Panel>
+                    </View>
+                    <View id="/settings" activePanel="/settings">
+                        <Panel id="/settings">
+                            <PanelHeader before={<PanelHeaderBack />}>settings</PanelHeader>
+                            {/*<Group style={{ height: '1000px' }}>*/}
+
+                                <SettingPage></SettingPage>
+                            {/*</Group>*/}
                         </Panel>
                     </View>
                 </Epic>

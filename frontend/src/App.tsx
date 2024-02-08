@@ -27,6 +27,7 @@ function App() {
                                 <Route path="two" element={<BotCalendar1/>}/>
                                 <Route path="BotCalendarPage" element={<BotCalendarPage/>}/>
                                 <Route path="profile" element={<MainPage/>}/>
+                                <Route path="settings" element={<MainPage/>}/>
                                 <Route path="frontend/build" element={<MainPage/>}/>
                             </Route>
                         </Routes>

@@ -91,7 +91,6 @@ const BotList: React.FC = () => {
                     </Cell>
                 ))}
             </List>
-        </Group>
             <Placeholder>
                 <Pagination
                     currentPage={currentPage}
@@ -102,6 +101,7 @@ const BotList: React.FC = () => {
                     onChange={handleChange}
                 />
             </Placeholder>
+        </Group>
         </>
     );
 
