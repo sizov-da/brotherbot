@@ -36,9 +36,9 @@ import SettingPage from "./settings/SettingPage";
 
 
 
-const MainPage = () => {
+const MainPage = (props:any) => {
 
-
+    console.log('#1 props 1', props)
 
     const platform = usePlatform();
     const location = useLocation();
@@ -201,7 +201,7 @@ const MainPage = () => {
                         <Panel id="/profile">
                             <PanelHeader before={<PanelHeaderBack />}>Профиль</PanelHeader>
                             <Group style={{ height: '1000px' }}>
-                                <UserProfile></UserProfile>
+                                <UserProfile props={props} ></UserProfile>
                             </Group>
                         </Panel>
                     </View>
@@ -210,7 +210,7 @@ const MainPage = () => {
                             <PanelHeader before={<PanelHeaderBack />}>settings</PanelHeader>
                             {/*<Group style={{ height: '1000px' }}>*/}
 
-                                <SettingPage></SettingPage>
+                                <SettingPage props={props} ></SettingPage>
                             {/*</Group>*/}
                         </Panel>
                     </View>

@@ -20,7 +20,8 @@ if (cluster.isMaster) {
   setupMaster(httpServer, {
     loadBalancingMethod: "least-connection", // either "random", "round-robin" or "least-connection"
   });
-  const PORT = process.env.PORT || 3000;
+  // const PORT = process.env.PORT || 3000;
+  const PORT =  3000;
 
   httpServer.listen(PORT, () =>
       console.log(`server listening at http://localhost:${PORT}`)

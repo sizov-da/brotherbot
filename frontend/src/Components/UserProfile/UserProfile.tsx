@@ -6,7 +6,7 @@ import {
 } from "@vkontakte/vkui";
 
 
-const UserProfile: React.FC = () => {
+const UserProfile = ({props}:any) => {
 
 
 
@@ -24,7 +24,7 @@ const UserProfile: React.FC = () => {
             >
                 <Avatar size={96} src={'https://mykaleidoscope.ru/x/uploads/posts/2022-09/1663346799_8-mykaleidoscope-ru-p-lev-v-gneve-krasivo-8.jpg'} />
                 <Title style={{ marginBottom: 8, marginTop: 20 }} level="2" weight="2">
-                    { 'Лев Львович' }
+                    { props.globalProps.user.login}
                 </Title>
             </Gradient>
             <Group

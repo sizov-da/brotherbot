@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 // import './App.css';
 import {
     Route,
@@ -13,6 +13,24 @@ import {ConfigProvider, AdaptivityProvider, AppRoot} from "@vkontakte/vkui";
 import BotCalendarPage from "./Components/Calendar/BotCalendarPage";
 
 function App() {
+
+    const [props, setProps] = useState<any> (
+        {
+            user: {
+                login: 'sizov',
+                uid: '1111111',
+                targets: [],
+                tasks: [],
+                botList: [],
+                massage: [],
+                friends: [],
+                workspaces: []
+            }
+        } );
+    const setGlobalProps = (newProps: any) =>{
+        setProps(newProps)
+    }
+
     return (
         <ConfigProvider
             appearance="light"
@@ -21,14 +39,14 @@ function App() {
                 <AppRoot mode={"full"}>
                     <BrowserRouter>
                         <Routes>
-                            <Route path="/" element={<MainPage/>}>
+                            <Route path="/" element={<MainPage globalProps={props} setGlobalProps={setGlobalProps}/>}>
                                 <Route index element={<div>No page is selected.</div>}/>
                                 <Route path="Bot-List" element={<BotList/>}/>
                                 <Route path="two" element={<BotCalendar1/>}/>
                                 <Route path="BotCalendarPage" element={<BotCalendarPage/>}/>
-                                <Route path="profile" element={<MainPage/>}/>
-                                <Route path="settings" element={<MainPage/>}/>
-                                <Route path="frontend/build" element={<MainPage/>}/>
+                                <Route path="profile" element={<MainPage globalProps={props} setGlobalProps={setGlobalProps}/>}/>
+                                <Route path="settings" element={<MainPage globalProps={props} setGlobalProps={setGlobalProps}/>}/>
+                                <Route path="frontend/build" element={<MainPage globalProps={props} setGlobalProps={setGlobalProps}/>}/>
                             </Route>
                         </Routes>
                     </BrowserRouter>
