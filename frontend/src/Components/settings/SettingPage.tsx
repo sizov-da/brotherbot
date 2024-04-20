@@ -15,9 +15,7 @@ import {
     WriteBarIcon,
     Div,
     AdaptiveIconRenderer,
-    usePlatform,
-    MiniInfoCell,
-    Spacing, Pagination
+    usePlatform, Counter
 } from "@vkontakte/vkui";
 import socket from "../../Logics/socket";
 import {
@@ -26,8 +24,7 @@ import {
     Icon28SmileOutline,
     Icon28VoiceOutline,
     Icon24SmileOutline,
-    Icon20UserCircleFillBlue,
-    Icon20CommentOutline
+    Icon20UserCircleFillBlue
 } from "@vkontakte/icons";
 import MassagesListIhUser from "./MassagesListIhUser/MassagesListIhUser";
 
@@ -72,13 +69,15 @@ const SettingPage = ({props}: any) => {
 
 
     const sendMassage = () => {
-        if (selectedUser && selectUser_i) {
+        console.log('#3 massage', selectedUser , selectUser_i)
+        console.log('#3 massage users', users)
+        if (selectedUser && selectUser_i !== null) {
             const message   = {
                 content: text,
                 from: thisUserID,
-                to: selectedUser,
+                to: selectedUser
             }
-
+            console.log('#3 massage', users[selectUser_i])
             users[selectUser_i].messages.push(message)
             socket.emit("private message", message );
             console.log('#3 massage', test)
@@ -140,7 +139,7 @@ const SettingPage = ({props}: any) => {
 
 
         socket.on("session", ({sessionID, userID}) => {
-            console.log("#1 session", sessionID, userID)
+            console.log("#1 session ", sessionID, userID)
             // attach the session ID to the next reconnection attempts
             socket.auth = {sessionID};
             // store it in the localStorage
@@ -156,11 +155,12 @@ const SettingPage = ({props}: any) => {
         });
 
         socket.on("connect_error", (err) => {
+            console.log('#8 connect_error', err)
             if (err.message === "invalid username") {
 
                 setUsernameAlreadySelected(false);
 
-                console.log('#8', 'connect_error' )
+                console.error('#8', 'connect_error invalid username' )
             }
         });
 
@@ -177,9 +177,7 @@ const SettingPage = ({props}: any) => {
     const createdSocketComponent = () => {
         console.log('-#2', 'createdSocketComponent')
         console.log('-#2 users', users)
-        // if (!users.length) {
-        //     setUsers()
-        // }
+
         socket.on("connect", () => {
             console.log('#1 connect')
             users.forEach((user: any) => {
@@ -405,13 +403,21 @@ const SettingPage = ({props}: any) => {
                                                     src={'https://mykaleidoscope.ru/x/uploads/posts/2022-09/1663346799_8-mykaleidoscope-ru-p-lev-v-gneve-krasivo-8.jpg'}
 
                                             >
-                                                {item.connected && item.userID === thisUserID &&
+                                                <div style={{   right: '14px',
+                                                                bottom: '-30px',
+                                                                position: 'relative'}}>
+                                                <Avatar.Badge background={'stroke'} >
+                                                    <Counter size="s" mode="primary">
+                                                        2
+                                                    </Counter>
+                                                </Avatar.Badge>
+                                                </div>
+                                                    {item.connected && item.userID === thisUserID &&
                                                     <Avatar.Badge background={"stroke"}>
                                                         <Icon20UserCircleFillBlue width={16} height={16}/>
                                                     </Avatar.Badge>}
                                                 {item.connected && item.userID !== thisUserID &&
-                                                    <Avatar.BadgeWithPreset preset={"online"}/>
-                                                }
+                                                    <Avatar.BadgeWithPreset preset={"online"}/>}
                                             </Avatar>
                                         </HorizontalCell>
                                     );
@@ -422,11 +428,12 @@ const SettingPage = ({props}: any) => {
                 </div>
                 <Separator/>
 
-                {selectUserMassages.length && <MassagesListIhUser
+                <MassagesListIhUser
                     users={users}
                     selectUserMassages={selectUserMassages}
                     thisUserID={thisUserID}
-                    />}
+                    />
+
                 <Group style={{height: '20px'}}>
                 </Group>
                 <FixedLayout

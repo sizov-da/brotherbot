@@ -1,11 +1,29 @@
 # brotherbot
 
 
-npm outdated // run to check outdated npm packages
 
-npx npm-check-updates -u // run to check updates outdated npm packages
 
-npm install // run to update npm packages
+### Общий запуск проекта
+запуск бэкенда ([socket_server](socket_server))
+
+    cd socket_server && docker-compose up -d
+    
+    npm start
+
+
+Запуск фронтенда ([frontend](frontend))
+
+    cd frontend && npm start
+
+
+### История разработки проекта
+
+
+    npm outdated // run to check outdated npm packages
+
+    npx npm-check-updates -u // run to check updates outdated npm packages
+
+    npm install // run to update npm packages
 
 
 В процессе создания: 
