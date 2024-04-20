@@ -81,10 +81,7 @@ class ArangoMessageStore extends MessageStore {
       RETURN doc.value
     `);
     const results = await cursor.all();
-    return results.map((result) => {
-      console.log('#5 findMessagesForUser',result)
-     return  (result)
-    });
+    return results.flat() ;
   }
 }
 

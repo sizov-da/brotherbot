@@ -40,7 +40,7 @@ const sessionStore  = new ArangoDBSessionStore(db); // new RedisMessageStore(red
 const messageStore = new ArangoMessageStore(db);
 // const messageStore = new RedisMessageStore(redisClient);
 // const sessionStore = new RedisSessionStore(redisClient);
-
+const taskStore = new TaskStore(db);
 
 
 io.use(async (socket, next) => {
@@ -126,6 +126,15 @@ io.on("connection", async (socket) => {
         socket.to(to).to(socket.userID).emit( "private message", message);
         messageStore.saveMessage(message);
     });
+
+
+    // const tasks = await taskStore.findTasksForUser(socket.userID);
+    // socket.emit("tasks", tasks);
+    // socket.on("new task", (task) => {
+    //     taskStore.saveTask(task);
+    // });
+
+
 
     // notify users upon disconnection
     socket.on("disconnect", async () => {

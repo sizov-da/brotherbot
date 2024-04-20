@@ -69,18 +69,14 @@ const SettingPage = ({props}: any) => {
 
 
     const sendMassage = () => {
-        console.log('#3 massage', selectedUser , selectUser_i)
-        console.log('#3 massage users', users)
         if (selectedUser && selectUser_i !== null) {
             const message   = {
                 content: text,
                 from: thisUserID,
                 to: selectedUser
             }
-            console.log('#3 massage', users[selectUser_i])
             users[selectUser_i].messages.push(message)
             socket.emit("private message", message );
-            console.log('#3 massage', test)
             setText('')
             setTest(selectedUser + "_comment_" + text)
         }
@@ -480,7 +476,21 @@ const SettingPage = ({props}: any) => {
                             }
                             value={text}
                             onChange={(e) => setText(e.target.value)}
-                            // onHeightChange={() => updateBottomPadding()}
+                            onKeyDown={(e) => {
+                                if (text.length > 0 && e.key === 'Enter' && !e.ctrlKey) {
+                                    if (text === '\n') {
+                                        e.preventDefault();
+                                        setText('')
+                                    }
+                                    else
+                                    {
+                                        e.preventDefault();
+                                        sendMassage();
+                                    }
+                                } else if (e.key === 'Enter' && e.ctrlKey) {
+                                    setText(text + "\n");
+                                }
+                            }}
                             placeholder="Сообщение"
                         />
                     </div>
