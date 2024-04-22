@@ -43,7 +43,7 @@ const MassagesListIhUser = ({users, selectUserMassages, thisUserID}: any) => {
                             mode="more"
                             before={<Avatar
                                 size={24}
-                                src="https://sun9-29.userapi.com/c623616/v623616034/1c184/MnbEYczHxSY.jpg?ava=1"
+                                src={'/frontend/build/images/avatar.jpeg'}
                             >
                                 {userWriteMessage(massage).connected && userWriteMessage(massage).userID === thisUserID &&
                                     <Avatar.Badge background={"stroke"}>

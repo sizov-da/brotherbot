@@ -163,7 +163,7 @@ const MainPage = (props:any) => {
                     <View id="/Bot-List" activePanel="/Bot-List">
                         <Panel id="/Bot-List">
                             <PanelHeader before={<PanelHeaderBack />}>Бот-лист</PanelHeader>
-                                  <BotList/>
+                                  <BotList  props={props} />
                         </Panel>
                     </View>
 

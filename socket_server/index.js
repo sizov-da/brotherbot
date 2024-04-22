@@ -1,8 +1,8 @@
 const httpServer = require("http").createServer();
-const Redis = require("ioredis");
+// const Redis = require("ioredis");
 const {Database, aql} = require("arangojs");
 
-const redisClient = new Redis();
+// const redisClient = new Redis();
 
 const db = new Database({
     url: "http://45.80.70.119:8529",
@@ -21,10 +21,10 @@ const io = require("socket.io")( httpServer, {
         // origin: "http://localhost:3001",
         origin: "*",
     },
-    adapter: require("socket.io-redis")({
-        pubClient: redisClient,
-        subClient: redisClient.duplicate(),
-    }),
+    // adapter: require("socket.io-redis")({
+    //     pubClient: redisClient,
+    //     subClient: redisClient.duplicate(),
+    // }),
 });
 
 const {setupWorker} = require("@socket.io/sticky");
@@ -127,14 +127,27 @@ io.on("connection", async (socket) => {
         messageStore.saveMessage(message);
     });
 
+    const responseTaskForUser = async (socket) => {
+        try {
+            const cursor = await taskStore.findTasksForUser(socket.userID);
+            console.log("#7 new task", cursor);
+            socket.emit("tasks", cursor);
+        } catch (error) {
+            console.error("Error getting tasks for user:", error);
+        }
+    }
 
-    // const tasks = await taskStore.findTasksForUser(socket.userID);
-    // socket.emit("tasks", tasks);
-    // socket.on("new task", (task) => {
-    //     taskStore.saveTask(task);
-    // });
+    socket.on("new task", async (task) => {
+        console.log("#7 new task", task);
+        try {
+            await taskStore.saveTask(task);
+            await responseTaskForUser(socket);
+        } catch (error) {
+            console.error("Error saving new task:", error);
+        }
+    });
 
-
+    responseTaskForUser(socket);
 
     // notify users upon disconnection
     socket.on("disconnect", async () => {
