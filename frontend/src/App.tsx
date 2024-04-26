@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-// import './App.css';
 import {
     Route,
     BrowserRouter, Routes
@@ -7,7 +6,6 @@ import {
 import MainPage from './Components/MainPage';
 import BotList from "./Components/BotList/BotList";
 import BotCalendar1 from "./Components/BotCalendar-1";
-// import BotCalendarV2 from "./Components/BotCalendarV2";
 import '@vkontakte/vkui/dist/vkui.css';
 import {ConfigProvider, AdaptivityProvider, AppRoot} from "@vkontakte/vkui";
 import BotCalendarPage from "./Components/Calendar/BotCalendarPage";

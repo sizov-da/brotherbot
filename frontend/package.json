@@ -4,6 +4,8 @@
   "private": true,
   "homepage": "https://brazerbot.ru/frontend/build/",
   "dependencies": {
+    "@react-buddy/ide-toolbox": "^2.4.0",
+    "@react-buddy/palette-antd": "^5.3.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -13,7 +15,7 @@
     "@types/react-dom": "^18.2.17",
     "@vkontakte/icons": "^2.87.0",
     "@vkontakte/vk-bridge": "^2.12.2",
-    "@vkontakte/vkui": "^5.10.0",
+    "@vkontakte/vkui": "^6.0.2",
     "@zach.codes/react-calendar": "^0.3.3",
     "ant-design": "^1.0.0",
     "antd": "^5.11.5",
@@ -22,6 +24,9 @@
     "echarts": "^5.4.3",
     "echarts-for-react": "^3.0.2",
     "element-resize-event": "^3.0.6",
+    "eruda": "^3.0.1",
+    "eruda-code": "^2.1.0",
+    "eruda-dom": "^2.0.0",
     "lorem-ipsum": "^2.0.8",
     "moment": "^2.29.4",
     "react": "^18.2.0",
@@ -43,9 +48,7 @@
     "workbox-range-requests": "^6.6.0",
     "workbox-routing": "^6.6.0",
     "workbox-strategies": "^6.6.0",
-    "workbox-streams": "^6.6.0",
-    "@react-buddy/ide-toolbox": "^2.4.0",
-    "@react-buddy/palette-antd": "^5.3.0"
+    "workbox-streams": "^6.6.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -72,6 +75,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/element-resize-event": "^3.0.2"
   }
 }

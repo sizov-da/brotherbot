@@ -13,13 +13,12 @@ const root = ReactDOM.createRoot(
 root.render(
     <React.StrictMode>
         <DevSupport ComponentPreviews={ComponentPreviews}
-                    useInitialHook={useInitial}
-        >
+                    useInitialHook={useInitial}>
             <App/>
         </DevSupport>
     </React.StrictMode>
 );
-
+// import("./eruda").then(({ default: eruda }) => {}); //runtime download
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://cra.link/PWA

@@ -45,6 +45,18 @@ const useSocket = (props: useSocketPropsType ) => {
             setTest(selectedUser + "_comment_" + text)
         }
     };
+    const sendNewTask = () => {
+        // Отправка новой задачи на сервер
+        socket.emit('new task', {
+            userID: thisUserID,
+            title: 'Задача №1',
+            description: text,
+            status: 'pending',
+        } );
+        setText('')
+        setTest(selectedUser + "_comment_" + text)
+    };
+
 
     const selectedUser2 = (selectedUserID: any) => {
         // props
@@ -123,6 +135,8 @@ const useSocket = (props: useSocketPropsType ) => {
         });
         socket.on("connect_error", (err) => {
             if (err.message === "invalid username") {
+                localStorage.removeItem("sessionID");
+                setSessionID(null);
                 setUsernameAlreadySelected(false);
                 console.error('#8', 'connect_error invalid username')
             }
@@ -242,10 +256,7 @@ const useSocket = (props: useSocketPropsType ) => {
         }
     }
 
-    const sendNewTask = (newTask: any) => {
-        // Отправка новой задачи на сервер
-        socket.emit('new task', newTask );
-    };
+
 
     useEffect(() => {
             if (!usernameAlreadySelected) {

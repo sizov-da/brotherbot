@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {
     Avatar,
     Input,
@@ -17,7 +17,7 @@ import {
     AdaptiveIconRenderer,
     usePlatform, Counter
 } from "@vkontakte/vkui";
-import socket from "../../Logics/socket";
+
 import {
     Icon28UserOutline,
     Icon24VoiceOutline,
@@ -50,32 +50,23 @@ const SettingPage = ({props}: any) => {
         text,
         setText,
         usernameAlreadySelected,
-        setUsernameAlreadySelected,
         isAttachmentsShown,
-        setIsAttachmentsShown,
-        sendNewTask
+        setIsAttachmentsShown
     } = useSocket( props );
-
     const platform = usePlatform();
-
     const SmileOutlineIcon = (
         <AdaptiveIconRenderer
             IconCompact={platform === 'ios' ? Icon28SmileOutline : Icon24SmileOutline}
             IconRegular={Icon28SmileOutline}
         />
     );
-
     const VoiceOutlineIcon = (
         <AdaptiveIconRenderer
             IconCompact={platform === 'ios' ? Icon28VoiceOutline : Icon24VoiceOutline}
             IconRegular={Icon28VoiceOutline}
         />
     );
-
     const attachmentsCount = 5;
-
-
-
 
     return (
         <div>
@@ -167,7 +158,7 @@ const SettingPage = ({props}: any) => {
                     thisUserID={thisUserID}
                     />
 
-                <Group style={{height: '20px'}}>
+                <Group style={{height: '20px', opacity: 0}}>
                 </Group>
                 <FixedLayout
                     vertical="bottom"

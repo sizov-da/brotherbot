@@ -62,7 +62,7 @@ const MainPage = (props:any) => {
 
     return (
         <SplitLayout
-            header={hasHeader && <PanelHeader separator={false} />}
+            header={hasHeader && <PanelHeader  />}
             style={{ justifyContent: 'center' }}
         >
             {viewWidth.tabletPlus && (
@@ -162,7 +162,6 @@ const MainPage = (props:any) => {
                 >
                     <View id="/Bot-List" activePanel="/Bot-List">
                         <Panel id="/Bot-List">
-                            <PanelHeader before={<PanelHeaderBack />}>Бот-лист</PanelHeader>
                                   <BotList  props={props} />
                         </Panel>
                     </View>
