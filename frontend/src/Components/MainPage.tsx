@@ -1,7 +1,6 @@
 import React from "react";
 import {
     useLocation,
-    // useLocation,
     useNavigate
 } from 'react-router-dom';
 import {
@@ -30,10 +29,7 @@ import BotList from "./BotList/BotList";
 import BotCalendarPage from "./Calendar/BotCalendarPage";
 import UserProfile from "./UserProfile/UserProfile";
 import SettingPage from "./settings/SettingPage";
-// import { CommentOutlined, CustomerServiceOutlined } from '@ant-design/icons';
-
-
-
+import AuthPage from "./AuthPage/AuthPage";
 
 
 const MainPage = (props:any) => {
@@ -46,16 +42,23 @@ const MainPage = (props:any) => {
 
     const { viewWidth } = useAdaptivityConditionalRender();
     const [activeStory, setActiveStory] = React.useState(location.pathname);
+
+
+    
+
+
+
+
+
     const activeStoryStyles = {
         backgroundColor: 'var(--vkui--color_background_secondary)',
         borderRadius: 8,
     };
     const onStoryChange = (e:any) => {
-
         setActiveStory(e.currentTarget.dataset.story)
         navigate(e.currentTarget.dataset.story , {replace: false})
     };
-    console.log("#1",location.pathname);
+    console.log("#1", location.pathname);
     
     // setActiveStory(location.pathname)
     const hasHeader = platform !== Platform.VKCOM;
@@ -211,6 +214,14 @@ const MainPage = (props:any) => {
 
                                 <SettingPage props={props} ></SettingPage>
                             {/*</Group>*/}
+                        </Panel>
+                    </View>
+                    <View id="/AuthPage" activePanel="/AuthPage">
+                        <Panel id="/AuthPage">
+                            <PanelHeader before={<PanelHeaderBack />}>settings</PanelHeader>
+                            <Group style={{ height: '1000px' }}>
+                                <AuthPage props={props} ></AuthPage>
+                            </Group>
                         </Panel>
                     </View>
                 </Epic>

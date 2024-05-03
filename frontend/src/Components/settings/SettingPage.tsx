@@ -40,6 +40,7 @@ const SettingPage = ({props}: any) => {
     const {
         users,
         inputLoginData,
+        inputPasswordDataData,
         selectedUser,
         selectUserMassages,
         thisUserID,
@@ -47,6 +48,7 @@ const SettingPage = ({props}: any) => {
         selectedUser2,
         onUsernameSelection,
         loginData,
+        passwordData,
         text,
         setText,
         usernameAlreadySelected,
@@ -75,13 +77,13 @@ const SettingPage = ({props}: any) => {
                     <Input placeholder="Логин" onInput={loginData}/>
                 </FormItem>
                 <FormItem>
-                    <Input placeholder="Пароль"/>
+                    <Input placeholder="Пароль" onInput={passwordData}/>
                 </FormItem>
                 <Button
                     size="l"
                     mode="primary"
                     stretched
-                    onClick={() => onUsernameSelection(inputLoginData)}
+                    onClick={() => onUsernameSelection(inputLoginData, inputPasswordDataData )}
                 >
                     Попробовать
                 </Button>
@@ -124,7 +126,7 @@ const SettingPage = ({props}: any) => {
 
                                         >
                                             <Avatar size={56}
-                                                    src={'/frontend/build/images/avatar.jpeg'}
+                                                    src={'/images/avatar.jpeg'}
 
                                             >
                                                 <div style={{   right: '14px',

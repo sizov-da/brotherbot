@@ -9,6 +9,7 @@ import BotCalendar1 from "./Components/BotCalendar-1";
 import '@vkontakte/vkui/dist/vkui.css';
 import {ConfigProvider, AdaptivityProvider, AppRoot} from "@vkontakte/vkui";
 import BotCalendarPage from "./Components/Calendar/BotCalendarPage";
+import AuthPage from "./Components/AuthPage/AuthPage";
 
 function App() {
 
@@ -40,6 +41,7 @@ function App() {
                             <Route path="/" element={<MainPage globalProps={props} setGlobalProps={setGlobalProps}/>}>
                                 <Route index element={<div>No page is selected.</div>}/>
                                 <Route path="Bot-List" element={<BotList/>}/>
+                                <Route path="AuthPage" element={<AuthPage/>}/>
                                 <Route path="two" element={<BotCalendar1/>}/>
                                 <Route path="BotCalendarPage" element={<BotCalendarPage/>}/>
                                 <Route path="profile" element={<MainPage globalProps={props} setGlobalProps={setGlobalProps}/>}/>

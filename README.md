@@ -25,6 +25,9 @@
 
     npm install // run to update npm packages
 
+### Для получения временного  домена с SSL для разработки типа https://d344-192-109-241-26.ngrok-free.app/
+
+    ngrok http 3001
 
 В процессе создания: 
 https://create-react-app.dev/docs/making-a-progressive-web-app/

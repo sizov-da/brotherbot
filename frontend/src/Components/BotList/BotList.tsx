@@ -108,7 +108,7 @@ const BotList = ({ props, attachmentsCount }: any ) => {
 
 
     return (<>
-            <PanelHeader before={true?<Icon20FolderFill/>:<PanelHeaderBack/>}>Список дел</PanelHeader>
+            <PanelHeader before={true?<Icon20FolderFill/>:<PanelHeaderBack/>} after={'Senior ' }>Список дел</PanelHeader>
         <Group
             header={
                 <Header mode="secondary" indicator="25"  aside={

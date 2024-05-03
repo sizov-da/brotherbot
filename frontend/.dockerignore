@@ -1,0 +1,17 @@
+# Игнорировать файлы и каталоги, связанные с системой контроля версий
+.git
+.gitignore
+
+# Игнорировать файлы и каталоги, связанные с Node.js
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Игнорировать файлы и каталоги, связанные с IDE
+.idea
+.vscode
+
+# Игнорировать файлы и каталоги, связанные с Docker
+.dockerignore
+Dockerfile
+docker-compose.yaml

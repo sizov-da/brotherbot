@@ -1,6 +1,10 @@
 const httpServer = require("http").createServer();
 // const Redis = require("ioredis");
-const {Database, aql} = require("arangojs");
+const {Database} = require("arangojs");
+
+const {AuthDataValidator} = require('@telegram-auth/server');
+const {urlStrToAuthDataMap} = require('@telegram-auth/server/utils');
+
 
 // const redisClient = new Redis();
 
@@ -14,68 +18,116 @@ const db = new Database({
 });
 
 
-
-const io = require("socket.io")( httpServer, {
+const io = require("socket.io")(httpServer, {
     cors: {
         // origin: "http://localhost:8080",
         // origin: "http://localhost:3001",
         origin: "*",
     },
-    // adapter: require("socket.io-redis")({
-    //     pubClient: redisClient,
-    //     subClient: redisClient.duplicate(),
-    // }),
 });
 
 const {setupWorker} = require("@socket.io/sticky");
 const crypto = require("crypto");
 const randomId = () => crypto.randomBytes(8).toString("hex");
 
-const { ArangoDBSessionStore, RedisSessionStore } = require("./sessionStore");
-const { ArangoMessageStore, RedisMessageStore } = require("./messageStore");
-const { TaskStore } = require("./taskStore");
+const {ArangoDBSessionStore} = require("./sessionStore");
+const {ArangoMessageStore} = require("./messageStore");
+const {TaskStore} = require("./taskStore");
 
 
-const sessionStore  = new ArangoDBSessionStore(db); // new RedisMessageStore(redisClient);
+const sessionStore = new ArangoDBSessionStore(db); // new RedisMessageStore(redisClient);
 const messageStore = new ArangoMessageStore(db);
-// const messageStore = new RedisMessageStore(redisClient);
-// const sessionStore = new RedisSessionStore(redisClient);
+
 const taskStore = new TaskStore(db);
 
+//
+// async function authorize(credentials, req) {
+//     const validator = new AuthDataValidator({
+//         botToken: `${process.env.BOT_TOKEN}`,
+//     });
+//
+//     const data = objectToAuthDataMap(req.query || {});
+//     const user = await validator.validate(data);
+//
+//     if (user.id && user.first_name) {
+//         return {
+//             id: user.id.toString(),
+//             name: [user.first_name, user.last_name || ''].join(' '),
+//             image: user.photo_url,
+//         };
+//     }
+//     return null;
+// }
+//
+// authorize(credentials, req).then((user) => {
+//     console.log('##3 ', user)
+// });
+//
 
 io.use(async (socket, next) => {
+    console.log('#10.1 ',
+        [
+            socket.handshake.auth,
+            socket.handshake.auth.hash
+
+        ]
+    );
+
+    // new user registration
+    // if (registration){
+    //     console.log('#10.1.1 ',socket.handshake.auth.hash, socket.handshake.auth.username);
+    //     socket.hash = socket.handshake.auth.hash;
+    //     socket.username = socket.handshake.auth.username;
+    //     return next();
+    // }
+    const username = socket.handshake.auth.username;
+
+
     const sessionID = socket.handshake.auth.sessionID;
+
     if (sessionID) {
         const session = await sessionStore.findSession(sessionID);
+        console.log('#10.3 ', session);
         if (session) {
             socket.sessionID = sessionID;
             socket.userID = session.userID;
             socket.username = session.username;
+            socket.hash = session.hash;
             return next();
         }
     }
-    const username = socket.handshake.auth.username;
+
     if (!username) {
         return next(new Error("invalid username"));
     }
+
     socket.sessionID = randomId();
     socket.userID = randomId();
     socket.username = username;
+    socket.hash = socket.handshake.auth.hash;
     next();
 });
 
 io.on("connection", async (socket) => {
+
+    console.log('#10.2 ', socket.handshake.auth.hash, socket.hash);
+    if (socket.handshake.auth.hash !== socket.hash) {
+        socket.emit('authentication_error', 'Invalid password');
+        socket.disconnect();
+    }
     // persist session
     sessionStore.saveSession(socket.sessionID, {
         userID: socket.userID,
         username: socket.username,
         connected: true,
+        hash: socket.hash,
     });
 
     // emit session details
     socket.emit("session", {
         sessionID: socket.sessionID,
         userID: socket.userID,
+        username: socket.username,
     });
 
     // join the "userID" room
@@ -118,17 +170,17 @@ io.on("connection", async (socket) => {
 
     // forward the private message to the right recipient (and to other tabs of the sender)
     socket.on("private message", ({content, to}) => {
-       console.log('#8',[{
-           content: content,
-           from: socket.userID,
-           to:to
-       }])
+        console.log('#8', [{
+            content: content,
+            from: socket.userID,
+            to: to
+        }])
         const message = {
             content,
             from: socket.userID,
             to,
         };
-        socket.to(to).to(socket.userID).emit( "private message", message);
+        socket.to(to).to(socket.userID).emit("private message", message);
         messageStore.saveMessage(message);
     });
 
@@ -152,7 +204,7 @@ io.on("connection", async (socket) => {
         }
     });
 
-    responseTaskForUser(socket);
+    await responseTaskForUser(socket);
 
     // notify users upon disconnection
     socket.on("disconnect", async () => {
@@ -160,7 +212,7 @@ io.on("connection", async (socket) => {
         const isDisconnected = matchingSockets.size === 0;
         if (isDisconnected) {
             // notify other users
-            socket.broadcast.emit("user disconnected", socket.userID );
+            socket.broadcast.emit("user disconnected", socket.userID);
             // update the connection status of the session
             sessionStore.saveSession(socket.sessionID, {
                 userID: socket.userID,
@@ -169,6 +221,7 @@ io.on("connection", async (socket) => {
             });
         }
     });
+
 });
 
 setupWorker(io);

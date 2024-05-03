@@ -1,0 +1,21 @@
+version: '3'
+services:
+  socket_server:
+    build:
+      context: ./socket_server
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./socket_server:/usr/src/app
+#    command: npm run start
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '3001:80'
+    volumes:
+      - ./frontend:/usr/src/app
+#    command: npm run start
