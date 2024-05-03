@@ -6,7 +6,7 @@ FROM node:20.6 as build-stage
 WORKDIR /usr/src/app
 
 # Скопируйте файлы package.json и yarn.lock в рабочий каталог
-COPY package*.json yarn.lock ./
+COPY package*.json ./
 
 # Установите зависимости
 RUN yarn install
