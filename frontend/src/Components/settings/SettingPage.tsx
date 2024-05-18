@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
     Avatar,
     Input,
@@ -28,15 +28,13 @@ import {
 } from "@vkontakte/icons";
 import MassagesListIhUser from "./MassagesListIhUser/MassagesListIhUser";
 import useSocket from "../../hooks/useSocket";
-// import useSocket from "../../hooks/useSocket";
-// import UserList from "./UserList";
-// import MessageList from "./MessageList";
-// import MessageInput from "./MessageInput";
-
-
+import {useNavigate} from "react-router-dom";
+import AuthPage from "../AuthPage/AuthPage";
 
 
 const SettingPage = ({props}: any) => {
+    const navigate = useNavigate();
+    const attachmentsCount = 5;
     const {
         users,
         inputLoginData,
@@ -55,6 +53,8 @@ const SettingPage = ({props}: any) => {
         isAttachmentsShown,
         setIsAttachmentsShown
     } = useSocket( props );
+
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const platform = usePlatform();
     const SmileOutlineIcon = (
         <AdaptiveIconRenderer
@@ -68,25 +68,35 @@ const SettingPage = ({props}: any) => {
             IconRegular={Icon28VoiceOutline}
         />
     );
-    const attachmentsCount = 5;
+
+
+
+
+    React.useEffect(() => {
+        if (!usernameAlreadySelected) {
+            // navigate('/AuthPage');
+            console.log("##2 ")
+        }
+    }, [usernameAlreadySelected, navigate, isAuthenticated]);
 
     return (
         <div>
             {!usernameAlreadySelected && <div>
-                <FormItem top="Вход">
-                    <Input placeholder="Логин" onInput={loginData}/>
-                </FormItem>
-                <FormItem>
-                    <Input placeholder="Пароль" onInput={passwordData}/>
-                </FormItem>
-                <Button
-                    size="l"
-                    mode="primary"
-                    stretched
-                    onClick={() => onUsernameSelection(inputLoginData, inputPasswordDataData )}
-                >
-                    Попробовать
-                </Button>
+                {/*<FormItem top="Вход">*/}
+                {/*    <Input placeholder="Логин" onInput={loginData}/>*/}
+                {/*</FormItem>*/}
+                {/*<FormItem>*/}
+                {/*    <Input placeholder="Пароль" onInput={passwordData}/>*/}
+                {/*</FormItem>*/}
+                {/*<Button*/}
+                {/*    size="l"*/}
+                {/*    mode="primary"*/}
+                {/*    stretched*/}
+                {/*    onClick={() => onUsernameSelection(inputLoginData, inputPasswordDataData )}*/}
+                {/*>*/}
+                {/*    Войти*/}
+                {/*</Button>*/}
+                <AuthPage  props={props}  setIsAuthenticated={setIsAuthenticated} />
             </div>}
             {usernameAlreadySelected && <div>
                 <div>
@@ -103,6 +113,7 @@ const SettingPage = ({props}: any) => {
                 <Separator/>
                 <div>
                     <Group header={<Header mode="secondary">друзья</Header>}>
+
                         <HorizontalScroll
                             showArrows
                             getScrollToLeft={(i) => i - 120}

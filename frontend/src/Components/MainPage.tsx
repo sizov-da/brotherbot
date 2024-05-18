@@ -211,13 +211,20 @@ const MainPage = (props:any) => {
                         <Panel id="/settings">
                             <PanelHeader before={<PanelHeaderBack />}>settings</PanelHeader>
                             {/*<Group style={{ height: '1000px' }}>*/}
-
                                 <SettingPage props={props} ></SettingPage>
                             {/*</Group>*/}
                         </Panel>
                     </View>
                     <View id="/AuthPage" activePanel="/AuthPage">
                         <Panel id="/AuthPage">
+                            <PanelHeader before={<PanelHeaderBack />}>settings</PanelHeader>
+                            <Group style={{ height: '1000px' }}>
+                                <AuthPage props={props} ></AuthPage>
+                            </Group>
+                        </Panel>
+                    </View>
+                    <View id="/Registration" activePanel="/Registration">
+                        <Panel id="/Registration">
                             <PanelHeader before={<PanelHeaderBack />}>settings</PanelHeader>
                             <Group style={{ height: '1000px' }}>
                                 <AuthPage props={props} ></AuthPage>

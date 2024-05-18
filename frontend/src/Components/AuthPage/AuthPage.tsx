@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {
-    Avatar, Button,
-    Gradient, Group, Header,
+    Avatar, Button, FormItem,
+    Gradient, Group, Header, Input,
     Title
 } from "@vkontakte/vkui";
 import {LoginButton} from '@telegram-auth/react';
@@ -13,9 +13,16 @@ const AuthPage = ({props}: any) => {
     const {
         users,
         thisUserID,
+        inputLoginData,
+        inputPasswordDataData,
+        onUsernameSelection,
+        loginData,
+        passwordData,
+        usernameAlreadySelected,
     } = useSocket(props);
     const [thisUser, setThisUser] = React.useState({username: ''});
     const [photoUrl, setPhotoUrl] = React.useState<string | null>('');
+    const [registrationState, setRegistrationState] = React.useState<boolean>(false);
     let botUsername;
     useEffect(() => {
         console.log("#1", users);
@@ -25,19 +32,14 @@ const AuthPage = ({props}: any) => {
                 setThisUser(user);
             }
         })
-
-
     }, [users, botUsername])
 
 
-    function deleteCookie(name: string) {
-        document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    }
+    console.log('##10', props )
+
     const handleLogout = () => {
         // Удаляем данные аутентификации из localStorage
         localStorage.removeItem('vkAuthData');
-        deleteCookie('stel_ssid');
-        deleteCookie('stel_token');
         // Вызываем функцию разлогинивания, переданную через props
         window.location.href = '/AuthPage';
     }
@@ -52,26 +54,22 @@ const AuthPage = ({props}: any) => {
         const hash = urlParams.get('hash');
         setPhotoUrl(urlParams.get('photo_url'));
         console.log("##1", id, firstName, lastName, username, photoUrl, authDate, hash);
-        // if (!id || !firstName || !lastName || !username || !photoUrl || !authDate || !hash) {
-        //     console.log('Данные аутентификации не найдены')
-        //     localStorage.removeItem('authData');
-        // } else {
-            const data = {
-                id: id,
-                first_name: firstName,
-                last_name: lastName,
-                username: username,
-                photo_url: photoUrl,
-                auth_date: authDate,
-                hash: hash
-            };
-            console.log('Данные аутентификации найдены', data);
-            localStorage.setItem('authData', JSON.stringify(data));
-        // }
+        const data = {
+            id: id,
+            first_name: firstName,
+            last_name: lastName,
+            username: username,
+            photo_url: photoUrl,
+            auth_date: authDate,
+            hash: hash
+        };
+        console.log('Данные аутентификации найдены', data);
+        localStorage.setItem('authData', JSON.stringify(data));
     }, []);
 
 
-    // https://d344-192-109-241-26.ngrok-free.app/AuthPage?
+    // https://d344-192-109-241-26.ngrok-free.ap
+    // p/AuthPage?
     // id=172913990
     // &first_name=Sizov
     // &last_name=Dmitryi
@@ -98,11 +96,62 @@ const AuthPage = ({props}: any) => {
                     {thisUser.username}
                 </Title>
             </Gradient>
+            {!usernameAlreadySelected && <div>
+                { !registrationState ?  <>
+                    <FormItem top="Вход">
+                        <Input placeholder="Логин" onInput={loginData}/>
+                    </FormItem>
+                    <FormItem>
+                        <Input placeholder="Пароль" onInput={passwordData}/>
+                    </FormItem>
+                    <Button
+                        size="l"
+                        mode="primary"
+                        stretched
+                        onClick={() => onUsernameSelection(inputLoginData, inputPasswordDataData, false)}
+                    >
+                        Войти
+                    </Button>
+                    <Button
+                        size="l"
+                        mode="tertiary"
+                        stretched
+                        onClick={() => setRegistrationState(true)}
+                    >
+                        Регистрация
+                    </Button>
+                </> : <>
+                        <FormItem top="Регистрация">
+                            <Input placeholder="Логин" onInput={loginData}/>
+                        </FormItem>
+                        <FormItem>
+                            <Input placeholder="Пароль" onInput={passwordData}/>
+                        </FormItem>
+                        <Button
+                            size="l"
+                            mode="primary"
+                            stretched
+                            onClick={() => onUsernameSelection(inputLoginData, inputPasswordDataData, true)}
+                        >
+                            Зарегистрироваться
+                        </Button>
+                        <Button
+                            size="l"
+                            mode="tertiary"
+                            stretched
+                            onClick={() => setRegistrationState(false)}
+                        >
+                            Вход
+                        </Button>
+                    </>}
+                <>
+                </>
+            </div>}
 
             <div id="telegramButton">
                 <LoginButton
-                    botUsername={'brother_u_bot'}
-                    authCallbackUrl="https://99bc-91-204-150-45.ngrok-free.app/AuthPage"
+                    botUsername={process.env.REACT_APP_BOT_USERNAME || "REACT_APP_BOT_USERNAME"}
+                    authCallbackUrl={process.env.REACT_APP_BACKEND_URL || "http://localhost:3000"}
                     onAuthCallback={data => {
                         console.log('##2', data);
                         localStorage.setItem('authData', JSON.stringify(data));

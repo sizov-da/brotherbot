@@ -26,13 +26,22 @@ class InMemorySessionStore extends SessionStore {
 }
 
 const SESSION_TTL = 24 * 60 * 60;
-const mapSessionConnect = ([userID, username, connected, hash]) => {
-  console.log("#1 redisClient input", [userID, username, connected, hash]);
 
-  var result = userID? {userID, username, connected: connected === "true", hash } : undefined;
-  console.log("#1 redisClient output", result);
+
+
+const mapSessionConnect = ([sessionID, userID, username, connected, hash]) => {
+  console.log("#1 mapSessionConnect input", [userID, username, connected, hash]);
+
+    const result =
+        sessionID ? { sessionID, userID, username, connected: connected === "true", hash } :
+            userID ? { userID, username, connected: connected === "true", hash } :
+                undefined;
+    console.log("#1 mapSessionConnect output", result);
  return result;
 }
+
+
+
 const mapSession = ([userID, username, connected]) => {
   console.log("#1 redisClient input", [userID, username, connected]);
 
@@ -40,6 +49,10 @@ const mapSession = ([userID, username, connected]) => {
   console.log("#1 redisClient output", result);
  return result;
 }
+
+
+
+
 class RedisSessionStore extends SessionStore {
   constructor(redisClient) {
     super();
@@ -116,7 +129,8 @@ class ArangoDBSessionStore extends SessionStore {
     return collection.document(id)
         .then((doc) => {
           console.log('#1 '+Date.now()+' db.collection', doc);
-          return mapSessionConnect([doc.userID, doc.username, doc.connected, doc.hash ]);
+          console.log('#1.2 '+Date.now()+' db.collection', doc.hash);
+          return mapSessionConnect([doc._key, doc.userID, doc.username, doc.connected, doc.hash ]);
         })
         .catch((err) => {
           console.error(err.message);
@@ -124,18 +138,20 @@ class ArangoDBSessionStore extends SessionStore {
         });
   }
 
-  findUsername(username) {
-    console.log('#1 '+Date.now()+' sessionID = ', username);
-    const collection = this.db.collection("sessions");
-    return collection.document(username)
-        .then((doc) => {
-          console.log('#1 '+Date.now()+' db.collection', doc);
-          return mapSessionConnect([doc.userID, doc.username, doc.connected, doc.hash ]);
-        })
-        .catch((err) => {
-          console.error(err.message);
-          return null;
-        });
+  findUserByUsername(username) {
+    console.log('#1 '+Date.now()+' username = ', username);
+      const query = aql`
+        FOR user IN sessions
+        FILTER user.username == ${username}
+        RETURN user
+    `;
+      return this.db.query(query)
+          .then(cursor => cursor.next())
+          .then(user => mapSessionConnect([user._key, user.userID, user.username, user.connected, user.hash]))
+          .catch(err => {
+              console.error(err.message);
+              return null;
+          });
   }
 
 
@@ -154,9 +170,7 @@ class ArangoDBSessionStore extends SessionStore {
             return collection.save({ _key: id, userID, username, connected, hash });
           }
         })
-        .then((result) => {
-          console.log('#3  '+Date.now()+'  result saveSession', result);
-        });
+        .then();
   }
 // [TODO: 1.1.1] Реализуйте метод findAllSessions для друзей из ArangoDB]]
   async findAllSessions() {

@@ -78,6 +78,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@types/element-resize-event": "^3.0.2"
+    "@types/element-resize-event": "^3.0.2",
+    "tsviz-cli": "^2.0.3"
   }
 }

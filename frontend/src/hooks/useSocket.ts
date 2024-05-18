@@ -24,13 +24,14 @@ const useSocket = (props: useSocketPropsType ) => {
 
 
     const [users, setUsers] = useState<any>([]);
+    const [usernameIsDb, setUsernameIsDb] = useState<any>([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [text, setText] = React.useState('');
     const [usernameAlreadySelected, setUsernameAlreadySelected] = React.useState(false);
     const [sessionID, setSessionID] = React.useState <string | null>(null);
     const [hash, setHash] = React.useState <string | null>(null);
     const [inputLoginData, setInputLoginData] = React.useState <string | null>(null);
-    // const [hash, setHash] = React.useState <string | null>(null);
+    const [asNewUserId, setAsNewUserId] = React.useState <string | null>(null);
 
     const [selectUserMassages, setSelectUserMassages] = React.useState([])
     const [selectUser_i, setSelectUser_i] = React.useState<number | null>(null)
@@ -120,14 +121,19 @@ const useSocket = (props: useSocketPropsType ) => {
         }
     }
 
-    const onUsernameSelection = (username: any, hash: any) => {
-        socket.auth = { username, hash };
+    const onUsernameSelection = (username: any, hash: any, newUser?: any ) => {
+        // if (newUser) setAsNewUserId(newUser);
+        console.log("###1",{ username, hash, newUser }) //?
+        socket.auth = { username, hash, newUser };
         socket.connect();
         setUsernameAlreadySelected(true);
     }
 
     const loginData = (e: any) => {
         console.log(e.target.value) //?
+        if (typeof inputLoginData === "string") {
+            localStorage.setItem("inputLoginData", e.target.value);
+        }
         setInputLoginData(e.target.value)
     }
     const passwordData = (e: any) => {
@@ -142,10 +148,10 @@ const useSocket = (props: useSocketPropsType ) => {
 
 
     const creatSocketSession = () => {
-        socket.on("session", ({sessionID, userID, hash }) => {
-            console.log('#9', sessionID, userID , hash )
+        socket.on("session", ({sessionID, userID, hash , username, newUser}) => {
+            console.log('#9', sessionID, userID , hash ,  inputLoginData )
             // attach the session ID to the next reconnection attempts
-            socket.auth = {sessionID, hash };
+            socket.auth = { username, hash, newUser };
             // store it in the localStorage
             localStorage.setItem("sessionID", sessionID);
             // localStorage.setItem("hash", hash);
@@ -181,9 +187,13 @@ const useSocket = (props: useSocketPropsType ) => {
         if (!sessionID) {
             setSessionID(localStorage.getItem("sessionID"))
             setHash(localStorage.getItem("hash"))
+            setUsernameIsDb(localStorage.getItem("inputLoginData"))
+            // setHash(localStorage.getItem("hash"))
         }
         if (sessionID) {
-            socket.auth = { sessionID, hash };
+            const username = usernameIsDb
+            console.log('###3',{ sessionID, hash, username })
+            socket.auth = { sessionID, hash, username };
             socket.connect();
             setUsernameAlreadySelected(true);
         }
@@ -200,7 +210,6 @@ const useSocket = (props: useSocketPropsType ) => {
 
     const createdSocketComponent = () => {
         socket.on("connect", () => {
-            // console.log('#1 connect')
             users.forEach((user: any) => {
                 if (user.self) {
                     user.connected = true;
@@ -209,7 +218,6 @@ const useSocket = (props: useSocketPropsType ) => {
         });
 
         socket.on("disconnect", () => {
-            // console.log('#1 disconnect')
             users.forEach((user: any) => {
                 if (user.self) {
                     user.connected = false;
