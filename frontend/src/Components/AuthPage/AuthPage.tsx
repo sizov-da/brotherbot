@@ -4,6 +4,7 @@ import {
     Gradient, Group, Header, Input,
     Title
 } from "@vkontakte/vkui";
+
 import {LoginButton} from '@telegram-auth/react';
 import useSocket from "../../hooks/useSocket";
 
@@ -20,9 +21,13 @@ const AuthPage = ({props}: any) => {
         passwordData,
         usernameAlreadySelected,
     } = useSocket(props);
+
+
     const [thisUser, setThisUser] = React.useState({username: ''});
     const [photoUrl, setPhotoUrl] = React.useState<string | null>('');
     const [registrationState, setRegistrationState] = React.useState<boolean>(false);
+
+
     let botUsername;
     useEffect(() => {
         console.log("#1", users);
@@ -43,6 +48,7 @@ const AuthPage = ({props}: any) => {
         // Вызываем функцию разлогинивания, переданную через props
         window.location.href = '/AuthPage';
     }
+
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
@@ -66,18 +72,6 @@ const AuthPage = ({props}: any) => {
         console.log('Данные аутентификации найдены', data);
         localStorage.setItem('authData', JSON.stringify(data));
     }, []);
-
-
-    // https://d344-192-109-241-26.ngrok-free.ap
-    // p/AuthPage?
-    // id=172913990
-    // &first_name=Sizov
-    // &last_name=Dmitryi
-    // &username=SizovDA
-    // &photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fs8h-Ye9lGibNmIKST8b7OWtkDKq7tGBOcqIGNIxvYDU.jpg
-    // &auth_date=1714410797
-    // &hash=d167782cbc391053580652928a80c6992334cdb4beaea023357164181e851848
-
 
     return (<>
             <Gradient

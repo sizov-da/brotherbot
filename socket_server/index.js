@@ -191,6 +191,7 @@ io.on("connection", async (socket) => {
             hash: socket.hash,
         });
 
+        // ==========  SESSION BLOCK ===========
         // emit session details
         socket.emit("session", {
             sessionID: socket.sessionID,
@@ -226,6 +227,7 @@ io.on("connection", async (socket) => {
             });
         });
 
+        // ==========  USER BLOCK ===========
         socket.emit("users", users);
 
         // notify existing users
@@ -236,6 +238,8 @@ io.on("connection", async (socket) => {
             messages: [],
         });
 
+
+        // ========== MASSAGE BLOCK =============
         // forward the private message to the right recipient (and to other tabs of the sender)
         socket.on("private message", ({content, to}) => {
             console.log('#8', [{
@@ -251,6 +255,8 @@ io.on("connection", async (socket) => {
             socket.to(to).to(socket.userID).emit("private message", message);
             messageStore.saveMessage(message);
         });
+
+        // ========== TASK BLOCK =============
 
         const responseTaskForUser = async (socket) => {
             try {
@@ -273,6 +279,7 @@ io.on("connection", async (socket) => {
         });
 
         await responseTaskForUser(socket);
+
     }
     // notify users upon disconnection
     socket.on("disconnect", async () => {

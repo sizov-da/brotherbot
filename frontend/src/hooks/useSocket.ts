@@ -46,6 +46,8 @@ const useSocket = (props: useSocketPropsType ) => {
 
 
 
+
+
     const sendMassage = () => {
         if (selectedUser && selectUser_i !== null) {
             const message = {
@@ -310,6 +312,11 @@ const useSocket = (props: useSocketPropsType ) => {
             });
         }
     }
+
+
+
+
+
 
 
 

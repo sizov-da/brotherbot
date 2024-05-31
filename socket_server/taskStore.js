@@ -6,6 +6,8 @@ class TaskStore {
     this.collection = this.db.collection('tasks');
   }
 
+  // ========== task filter =============
+
   async findTasksForUser(userID) {
     const cursor = await this.db.query(aql`
       FOR task IN tasks

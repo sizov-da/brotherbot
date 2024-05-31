@@ -44,11 +44,6 @@ const MainPage = (props:any) => {
     const [activeStory, setActiveStory] = React.useState(location.pathname);
 
 
-    
-
-
-
-
 
     const activeStoryStyles = {
         backgroundColor: 'var(--vkui--color_background_secondary)',
@@ -65,7 +60,7 @@ const MainPage = (props:any) => {
 
     return (
         <SplitLayout
-            header={hasHeader && <PanelHeader  />}
+            header={hasHeader && <PanelHeader />}
             style={{ justifyContent: 'center' }}
         >
             {viewWidth.tabletPlus && (

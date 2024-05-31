@@ -27,6 +27,7 @@ import useSocket from "../../hooks/useSocket";
 const BotList = ({ props, attachmentsCount }: any ) => {
     const {
         users,
+        selectedUser,
         sendNewTask,
         thisUserID,
         tasksList,
@@ -35,6 +36,7 @@ const BotList = ({ props, attachmentsCount }: any ) => {
     } = useSocket( props );
 
     const [selectAction, setSelectAction] = useState<any>("addNewReport");
+    const [thisUserData, setThisUserData] = useState<any>(null);
 
     const [draggingList, updateDraggingList] = React.useState(tasksList);
     const [currentPage, setCurrentPage] = useState<number | undefined>(1);
@@ -103,13 +105,31 @@ const BotList = ({ props, attachmentsCount }: any ) => {
         console.log("#1", users)
     }, [users])
 
-    console.log("#1", thisUserID)
-    console.log("#1", users)
+    console.log("#1 thisUserID", thisUserID)
+    console.log("#1 users", users)
 
+    useEffect(() => {
+         users.map( (user: any) =>{
+          if  (user.userID === thisUserID) {
+              setThisUserData(user)
+          }
+        })
+    }, [thisUserData] )
+
+
+
+    console.log("#1 thisUserData", thisUserData)
 
     return (<>
-            <PanelHeader before={true?<Icon20FolderFill/>:<PanelHeaderBack/>} after={'Senior ' }>Список дел</PanelHeader>
-        <Group
+            <PanelHeader
+                         before={true ? <Icon20FolderFill/> : <PanelHeaderBack/>}
+                         after={'Senior ' }>
+                Список дел
+            </PanelHeader>
+
+
+
+            <Group
             header={
                 <Header mode="secondary" indicator="25"  aside={
                     <Button size="s"
