@@ -36,7 +36,24 @@ const BotList = ({ props, attachmentsCount }: any ) => {
     } = useSocket( props );
 
     const [selectAction, setSelectAction] = useState<any>("addNewReport");
+
+
+
+    // ========== USER BLOCK =============
     const [thisUserData, setThisUserData] = useState<any>(null);
+    console.log("#1 thisUserID", thisUserID)
+    console.log("#1 users", users)
+    useEffect(() => {
+        users.map( (user: any) =>{
+            if  (user.userID === thisUserID) {
+                setThisUserData(user)
+            }
+        })
+    }, [users, thisUserData] )
+    // ========== END USER BLOCK =============
+
+
+
 
     const [draggingList, updateDraggingList] = React.useState(tasksList);
     const [currentPage, setCurrentPage] = useState<number | undefined>(1);
@@ -48,6 +65,9 @@ const BotList = ({ props, attachmentsCount }: any ) => {
     const handleChange = React.useCallback((page: React.SetStateAction<number | undefined>) => {
         setCurrentPage(page);
     }, []);
+
+
+
 
 
     const [buttonClicked, setButtonClicked] = useState(false);
@@ -105,16 +125,7 @@ const BotList = ({ props, attachmentsCount }: any ) => {
         console.log("#1", users)
     }, [users])
 
-    console.log("#1 thisUserID", thisUserID)
-    console.log("#1 users", users)
 
-    useEffect(() => {
-         users.map( (user: any) =>{
-          if  (user.userID === thisUserID) {
-              setThisUserData(user)
-          }
-        })
-    }, [thisUserData] )
 
 
 
@@ -123,7 +134,11 @@ const BotList = ({ props, attachmentsCount }: any ) => {
     return (<>
             <PanelHeader
                          before={true ? <Icon20FolderFill/> : <PanelHeaderBack/>}
-                         after={'Senior ' }>
+                         after={ <> <div>{thisUserData?.username} </div> <Button mode="outline" size="s" onClick={()=>{
+
+                         }}>
+                             Выйти
+                         </Button> </>} >
                 Список дел
             </PanelHeader>
 
@@ -154,6 +169,7 @@ const BotList = ({ props, attachmentsCount }: any ) => {
                 ))}
             </List>
             <Placeholder>
+                {/*  limit offset organization */}
                 <Pagination
                     currentPage={currentPage}
                     siblingCount={siblingCount}

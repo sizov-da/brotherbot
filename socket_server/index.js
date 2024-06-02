@@ -255,19 +255,24 @@ io.on("connection", async (socket) => {
             socket.to(to).to(socket.userID).emit("private message", message);
             messageStore.saveMessage(message);
         });
+        // ========== END MASSAGE BLOCK =============
 
         // ========== TASK BLOCK =============
 
-        const responseTaskForUser = async (socket) => {
-            try {
-                const cursor = await taskStore.findTasksForUser(socket.userID);
-                console.log("#7 new task", cursor);
-                socket.emit("tasks", cursor);
-            } catch (error) {
-                console.error("Error getting tasks for user:", error);
-            }
-        }
+                // ========== TASK - GET DATA - COMPONENT =============
+                const responseTaskForUser = async (socket) => {
+                    try {
+                        const cursor = await taskStore.findTasksForUser(socket.userID);
+                        console.log("#7 new task", cursor);
+                        socket.emit("tasks", cursor);
+                    } catch (error) {
+                        console.error("Error getting tasks for user:", error);
+                    }
+                }
+                await responseTaskForUser(socket);
+                // ========== END TASK - GET DATA - TASK COMPONENT =============
 
+        // ========== TASK - SAVE DATA - COMPONENT =============
         socket.on("new task", async (task) => {
             console.log("#7 new task", task);
             try {
@@ -277,9 +282,9 @@ io.on("connection", async (socket) => {
                 console.error("Error saving new task:", error);
             }
         });
+        // ========== END TASK - SAVE DATA - TASK COMPONENT =============
 
-        await responseTaskForUser(socket);
-
+        // ========== END TASK BLOCK =============
     }
     // notify users upon disconnection
     socket.on("disconnect", async () => {

@@ -11,10 +11,6 @@ type useSocketPropsType = {
     };
 } | undefined
 
-type ErrorHandlers = {
-    [key: string]: () => void;
-};
-
 const ERROR_MESSAGES = {
     INVALID_USERNAME: "invalid username",
     INVALID_PASSWORD: "Invalid password"
@@ -22,23 +18,27 @@ const ERROR_MESSAGES = {
 
 const useSocket = (props: useSocketPropsType ) => {
 
-
-    const [users, setUsers] = useState<any>([]);
-    const [usernameIsDb, setUsernameIsDb] = useState<any>([]);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [text, setText] = React.useState('');
-    const [usernameAlreadySelected, setUsernameAlreadySelected] = React.useState(false);
+    // ========== SESSION BLOCK =============
     const [sessionID, setSessionID] = React.useState <string | null>(null);
     const [hash, setHash] = React.useState <string | null>(null);
     const [inputLoginData, setInputLoginData] = React.useState <string | null>(null);
     const [asNewUserId, setAsNewUserId] = React.useState <string | null>(null);
 
+    // ========== USER BLOCK =============
+    const [users, setUsers] = useState<any>([]);
+    const [usernameIsDb, setUsernameIsDb] = useState<any>([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [usernameAlreadySelected, setUsernameAlreadySelected] = React.useState(false);
+    const [thisUserID, setThisUserID] = React.useState(null)
+
+    // ========== MASSAGE BLOCK =============
     const [selectUserMassages, setSelectUserMassages] = React.useState([])
     const [selectUser_i, setSelectUser_i] = React.useState<number | null>(null)
     const [isAttachmentsShown, setIsAttachmentsShown] = React.useState(false);
 
-    const [thisUserID, setThisUserID] = React.useState(null)
 
+    // ========== TASK BLOCK =============
+    const [text, setText] = React.useState('');
     const [, setTest] = React.useState<any>(true);
     const [tasksList, seTasksList] = React.useState<any>(true);
 
@@ -61,18 +61,6 @@ const useSocket = (props: useSocketPropsType ) => {
             setTest(selectedUser + "_comment_" + text)
         }
     };
-    const sendNewTask = () => {
-        // Отправка новой задачи на сервер
-        socket.emit('new task', {
-            userID: thisUserID,
-            title: 'Задача №1',
-            description: text,
-            status: 'pending',
-        } );
-        setText('')
-        setTest(selectedUser + "_comment_" + text)
-    };
-
 
     const selectedUser2 = (selectedUserID: any) => {
         // props
@@ -91,12 +79,27 @@ const useSocket = (props: useSocketPropsType ) => {
     }
 
 
-    const handleTasks = (tasks: any) => {
+    // ========== TASK BLOCK =============
+    const sendNewTask = () => {
+        // Отправка новой задачи на сервер
+        // add friends task controller (control to the task as group user)
+        socket.emit('new task', {
+            userID: thisUserID,
+            title: 'Задача №1',
+            description: text,
+            status: 'pending',
+        } );
+        setText('')
+        setTest(selectedUser + "_comment_" + text)
+    };
+
+
+    const processTasksFromASocket = (tasks: any) => {
         console.log('#10 tasks',tasks); // Здесь вы можете обработать полученные задачи
         seTasksList(tasks);
     };
 
-    const handleNewTask = (tasks: any) => {
+    const processNewTaskFromASocket = (tasks: any) => {
         // Обработка новой задачи
         console.log('#10 tasks',tasks);
     };
@@ -104,25 +107,14 @@ const useSocket = (props: useSocketPropsType ) => {
     const tasksListConnect = () => {
         // Получение всех задач при инициализации страницы
         socket.emit('tasks');
-        socket.on('tasks', handleTasks);
-        socket.on('new task', handleNewTask);
+        socket.on('tasks', processTasksFromASocket);
+        socket.on('new task', processNewTaskFromASocket);
 
     }
+    // ========== END TASK BLOCK =============
 
-    const disconnectSocket = () => {
-        socket.off("connect");
-        socket.off("disconnect");
-        socket.off("users");
-        socket.off("user connected");
-        socket.off("user disconnected");
-        socket.off("private message");
-        socket.off('tasks', handleTasks);
-        socket.off('new task', handleNewTask);
-        if (users.length) {
-            socket.disconnect();
-        }
-    }
 
+    // ========== SESSION BLOCK =============
     const onUsernameSelection = (username: any, hash: any, newUser?: any ) => {
         // if (newUser) setAsNewUserId(newUser);
         console.log("###1",{ username, hash, newUser }) //?
@@ -144,8 +136,6 @@ const useSocket = (props: useSocketPropsType ) => {
             localStorage.setItem("hash", e.target.value);
         }
         setHash(e.target.value)
-
-
     }
 
 
@@ -201,15 +191,6 @@ const useSocket = (props: useSocketPropsType ) => {
         }
     }
 
-
-
-
-
-
-
-
-
-
     const createdSocketComponent = () => {
         socket.on("connect", () => {
             users.forEach((user: any) => {
@@ -218,7 +199,10 @@ const useSocket = (props: useSocketPropsType ) => {
                 }
             });
         });
+        // ========== END SESSION BLOCK =============
 
+
+        // ==========  USER BLOCK ===========
         socket.on("disconnect", () => {
             users.forEach((user: any) => {
                 if (user.self) {
@@ -290,6 +274,10 @@ const useSocket = (props: useSocketPropsType ) => {
 
             });
 
+            // ========== END USER BLOCK =============
+
+            // ========== MASSAGE BLOCK =============
+
             socket.on("private message", ({content, from, to}) => {
                 for (let i = 0; i < users.length; i++) {
                     const user: any = users[i];
@@ -310,14 +298,25 @@ const useSocket = (props: useSocketPropsType ) => {
                 }
                 setTest(content + "_message")
             });
+            // ========== END MASSAGE BLOCK =============
         }
     }
 
 
 
-
-
-
+    const disconnectSocket = () => {
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.off("users");
+        socket.off("user connected");
+        socket.off("user disconnected");
+        socket.off("private message");
+        socket.off('tasks', processTasksFromASocket);
+        socket.off('new task', processNewTaskFromASocket);
+        if (users.length) {
+            socket.disconnect();
+        }
+    }
 
 
     useEffect(() => {

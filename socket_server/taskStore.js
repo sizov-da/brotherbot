@@ -6,7 +6,7 @@ class TaskStore {
     this.collection = this.db.collection('tasks');
   }
 
-  // ========== task filter =============
+  // ========== task filter limit offset function  =============
 
   async findTasksForUser(userID) {
     const cursor = await this.db.query(aql`
