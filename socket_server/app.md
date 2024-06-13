@@ -1,5 +1,6 @@
 structure my project
 
+# ALL BLOCKS:
 
 - SESSION BLOCK
 
@@ -38,8 +39,22 @@ BLOCK - COMPONENT - LOGIC
         // ========== END TASK - GET DATA - TASK COMPONENT =============
 
 
-TASK - SAVE DATA - COMPONENT - LOGIC
+
+# ALL COMPONENTS:
+
+- TASK - SAVE DATA COMPONENT
+
+this is a component that saves data to the server
 
         // ========== TASK - SAVE DATA - COMPONENT =============
         // ========== END TASK - SAVE DATA - TASK COMPONENT =============
 
+| BLOCKS  |                          |   |
+|:-------:|:------------------------:|:-:|
+| SESSION |                          | 2 |
+|  USER   |                          |   |
+|  TASK   |                          |   |
+| MASSAGE | GET DATA, <br/>SAVE DATA |   |
+|         |                          |   |
+|         |                          |   |
+|         |                          |   |

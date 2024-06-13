@@ -32,7 +32,15 @@ const BotList = ({ props, attachmentsCount }: any ) => {
         thisUserID,
         tasksList,
         text,
-        setText
+        setText,
+         handleChange,
+        currentPage,
+        setCurrentPage,
+        limit,
+        offset,
+        setOffset,
+        setLimit,
+        totalPages
     } = useSocket( props );
 
     const [selectAction, setSelectAction] = useState<any>("addNewReport");
@@ -56,15 +64,15 @@ const BotList = ({ props, attachmentsCount }: any ) => {
 
 
     const [draggingList, updateDraggingList] = React.useState(tasksList);
-    const [currentPage, setCurrentPage] = useState<number | undefined>(1);
+    // const [currentPage, setCurrentPage] = useState<number | undefined>(1);
     const [siblingCount,] = useState(0);
     const [boundaryCount,] = useState(1);
-    const [totalPages,] = useState(123);
+
     const [disabled,] = useState(false);
 
-    const handleChange = React.useCallback((page: React.SetStateAction<number | undefined>) => {
-        setCurrentPage(page);
-    }, []);
+    // const handleChange = React.useCallback((page: React.SetStateAction<number | undefined>) => {
+    //     setCurrentPage(page);
+    // }, []);
 
 
 
@@ -157,7 +165,7 @@ const BotList = ({ props, attachmentsCount }: any ) => {
             }
         >
             <List>
-                {Array.isArray(tasksList) && tasksList.map((task : any) => (
+                {Array.isArray(tasksList.tasks) && tasksList.tasks.map((task : any) => (
                     <Cell key={task._key}
                           before={<Avatar fallbackIcon={<Icon28ClockOutline/>}/>}
                           draggable

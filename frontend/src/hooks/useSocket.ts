@@ -41,8 +41,12 @@ const useSocket = (props: useSocketPropsType ) => {
     const [text, setText] = React.useState('');
     const [, setTest] = React.useState<any>(true);
     const [tasksList, seTasksList] = React.useState<any>(true);
+    const [limit, setLimit] = useState(10); // Вы можете установить начальное значение в соответствии с вашими требованиями
+    const [offset, setOffset] = useState(0);
+    const [currentPage, setCurrentPage] = useState<number | undefined>(1);
 
-
+    const [total, setTotal] = useState(0); // Добавьте состояние для общего количества элементов
+    const [totalPages, setTotalPages] = useState(0); // Добавьте состояние для общего количества страниц
 
 
 
@@ -90,12 +94,13 @@ const useSocket = (props: useSocketPropsType ) => {
             status: 'pending',
         } );
         setText('')
-        setTest(selectedUser + "_comment_" + text)
+         setTest(selectedUser + "_comment_" + text)
     };
 
 
     const processTasksFromASocket = (tasks: any) => {
         console.log('#10 tasks',tasks); // Здесь вы можете обработать полученные задачи
+        setTotal(tasks.total)
         seTasksList(tasks);
     };
 
@@ -106,11 +111,44 @@ const useSocket = (props: useSocketPropsType ) => {
 
     const tasksListConnect = () => {
         // Получение всех задач при инициализации страницы
-        socket.emit('tasks');
-        socket.on('tasks', processTasksFromASocket);
+        socket.emit('tasks_limit_offset', { limit: limit, offset: offset });
+       // socket.on('tasks', processTasksFromASocket);
+        socket.on('tasks_limit_offset', processTasksFromASocket);
         socket.on('new task', processNewTaskFromASocket);
 
     }
+
+
+    const handleChange =  React.useCallback((page: React.SetStateAction<number | undefined>) => {
+        if (page !== undefined) {
+            setCurrentPage(page);
+            console.log('#10.1', page, limit, offset)
+            // Вычислите новое смещение на основе выбранной страницы и лимита
+            const newOffset = (Number(page) - 1) * limit;
+
+            setOffset(newOffset);
+            // Здесь вызывайте функцию для получения данных с новым лимитом и смещением
+            fetchData(limit, newOffset);
+        }
+    }, []);
+
+    // Функция для получения данных
+    const fetchData = async (limit: number, offset: number) => {
+        // Здесь реализуйте логику для получения данных с серв��ра
+        // Используйте параметры limit и offset в вашем запросе
+        console.log('#10.1', limit, offset)
+        socket.emit('tasks_limit_offset', { limit: limit, offset: offset });
+
+    };
+
+
+
+    useEffect(() => {
+        // Вычислите общее количество страниц на основе общего количества элементов и лимита
+        const totalPages = Math.ceil(total / limit);
+        console.log('#10.1 totalPages', limit, offset ,totalPages)
+        setTotalPages(totalPages);
+    }, [total, limit, tasksList]);
     // ========== END TASK BLOCK =============
 
 
@@ -122,7 +160,6 @@ const useSocket = (props: useSocketPropsType ) => {
         socket.connect();
         setUsernameAlreadySelected(true);
     }
-
     const loginData = (e: any) => {
         console.log(e.target.value) //?
         if (typeof inputLoginData === "string") {
@@ -137,8 +174,6 @@ const useSocket = (props: useSocketPropsType ) => {
         }
         setHash(e.target.value)
     }
-
-
     const creatSocketSession = () => {
         socket.on("session", ({sessionID, userID, hash , username, newUser}) => {
             console.log('#9', sessionID, userID , hash ,  inputLoginData )
@@ -190,7 +225,6 @@ const useSocket = (props: useSocketPropsType ) => {
             setUsernameAlreadySelected(true);
         }
     }
-
     const createdSocketComponent = () => {
         socket.on("connect", () => {
             users.forEach((user: any) => {
@@ -301,9 +335,6 @@ const useSocket = (props: useSocketPropsType ) => {
             // ========== END MASSAGE BLOCK =============
         }
     }
-
-
-
     const disconnectSocket = () => {
         socket.off("connect");
         socket.off("disconnect");
@@ -317,6 +348,8 @@ const useSocket = (props: useSocketPropsType ) => {
             socket.disconnect();
         }
     }
+
+
 
 
     useEffect(() => {
@@ -353,7 +386,16 @@ const useSocket = (props: useSocketPropsType ) => {
         isAttachmentsShown,
         setIsAttachmentsShown,
         sendNewTask,
-        tasksList
+        tasksList,
+        totalPages,
+
+        handleChange,
+        currentPage,
+        limit,
+        offset,
+        setOffset,
+        setLimit,
+        setCurrentPage
     };
 };
 

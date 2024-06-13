@@ -260,29 +260,35 @@ io.on("connection", async (socket) => {
         // ========== TASK BLOCK =============
 
                 // ========== TASK - GET DATA - COMPONENT =============
-                const responseTaskForUser = async (socket) => {
+
+                socket.on("tasks_limit_offset", async ({limit, offset}) => {
                     try {
-                        const cursor = await taskStore.findTasksForUser(socket.userID);
-                        console.log("#7 new task", cursor);
-                        socket.emit("tasks", cursor);
+                        const tasks = await taskStore.findTasksForUser(socket.userID, limit, offset);
+                        console.log("#7 get tasks", tasks);
+
+                        const count = await taskStore.countTasksForUser(socket.userID);
+                        console.log("#7 get tasks count", count);
+
+                        socket.emit("tasks_limit_offset", { tasks: tasks, total: count } );
                     } catch (error) {
                         console.error("Error getting tasks for user:", error);
                     }
-                }
-                await responseTaskForUser(socket);
+                });
+
+
                 // ========== END TASK - GET DATA - TASK COMPONENT =============
 
-        // ========== TASK - SAVE DATA - COMPONENT =============
-        socket.on("new task", async (task) => {
-            console.log("#7 new task", task);
-            try {
-                await taskStore.saveTask(task);
-                await responseTaskForUser(socket);
-            } catch (error) {
-                console.error("Error saving new task:", error);
-            }
-        });
-        // ========== END TASK - SAVE DATA - TASK COMPONENT =============
+                // ========== TASK - SAVE DATA - COMPONENT =============
+                socket.on("new task", async (task) => {
+                    console.log("#7 SAVE new task", task);
+                    try {
+                        await taskStore.saveTask(task);
+                        // await responseTaskForUser(socket);
+                    } catch (error) {
+                        console.error("Error saving new task:", error);
+                    }
+                });
+                // ========== END TASK - SAVE DATA - TASK COMPONENT =============
 
         // ========== END TASK BLOCK =============
     }
