@@ -129,3 +129,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 /socket_server/package-lock.json
+/.idea/

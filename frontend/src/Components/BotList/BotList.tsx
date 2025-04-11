@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Cell,
     List,
@@ -19,108 +19,56 @@ import {
     PanelHeaderBack
 } from "@vkontakte/vkui";
 import {
-    Icon24Add, Icon28FolderOutline , Icon24FolderOutline,
+    Icon24Add, Icon28FolderOutline, Icon24FolderOutline,
     Icon28ClockOutline, Icon28DocumentOutline, Icon24DocumentOutline, Icon20FolderFill
 } from "@vkontakte/icons";
 import useSocket from "../../hooks/useSocket";
 
-const BotList = ({ props, attachmentsCount }: any ) => {
+const BotList = ({ props, attachmentsCount }: any) => {
+    // Подключение хуков и данных из useSocket
     const {
         users,
-        selectedUser,
         sendNewTask,
         thisUserID,
         tasksList,
+        seTasksList,
         text,
         setText,
-         handleChange,
+        handleChange,
         currentPage,
-        setCurrentPage,
-        limit,
-        offset,
-        setOffset,
-        setLimit,
         totalPages
-    } = useSocket( props );
+    } = useSocket(props);
 
-    const [selectAction, setSelectAction] = useState<any>("addNewReport");
+    // Локальные состояния компонента
+    const [selectAction, setSelectAction] = useState<string>("addNewReport"); // Выбранное действие
+    const [thisUserData, setThisUserData] = useState<any>(null); // Данные текущего пользователя
+    const [draggingList, updateDraggingList] = useState(tasksList); // Список задач для перетаскивания
+    const [buttonClicked, setButtonClicked] = useState(false); // Состояние кнопки
+    const platform = usePlatform(); // Определение платформы (iOS/Android)
 
+    console.log('#2 BotList', tasksList);
 
-
-    // ========== USER BLOCK =============
-    const [thisUserData, setThisUserData] = useState<any>(null);
-    console.log("#1 thisUserID", thisUserID)
-    console.log("#1 users", users)
+    // Обновление данных текущего пользователя при изменении списка пользователей или ID
     useEffect(() => {
-        users.map( (user: any) =>{
-            if  (user.userID === thisUserID) {
-                setThisUserData(user)
-            }
-        })
-    }, [users, thisUserData] )
-    // ========== END USER BLOCK =============
+        const user = users.find((user: any) => user.userID === thisUserID);
+        setThisUserData(user);
+    }, [users, thisUserID]);
 
-
-
-
-    const [draggingList, updateDraggingList] = React.useState(tasksList);
-    // const [currentPage, setCurrentPage] = useState<number | undefined>(1);
-    const [siblingCount,] = useState(0);
-    const [boundaryCount,] = useState(1);
-
-    const [disabled,] = useState(false);
-
-    // const handleChange = React.useCallback((page: React.SetStateAction<number | undefined>) => {
-    //     setCurrentPage(page);
-    // }, []);
-
-
-
-
-
-    const [buttonClicked, setButtonClicked] = useState(false);
-
-    const platform = usePlatform();
-
-    const addListBusiness = (
-        <Tooltip placement="top" text="Добавить дело">
-            <Button id="tooltip-1" mode="link" onClick={ ()=>{setSelectAction("addListBusiness");}} >
-                <AdaptiveIconRenderer
-                    IconCompact={platform === 'ios' ? Icon28FolderOutline : Icon24FolderOutline}
-                    IconRegular={Icon28FolderOutline}/>
-            </Button>
-        </Tooltip>
-    );
-    const addNewReport = (
-        <Tooltip placement="top" text="Добавить отчет">
-            <Button id="tooltip-1" mode="link" onClick={()=>{setSelectAction("addNewReport");}}>
-                <AdaptiveIconRenderer
-                    IconCompact={platform === 'ios' ? Icon28DocumentOutline : Icon24DocumentOutline}
-                    IconRegular={Icon28DocumentOutline}/>
-            </Button>
-        </Tooltip>
-    );
-
-    const handleButtonClick = () => {
-        // sendNewTask({
-        //     userID: thisUserID,
-        //     title: 'Task title ' + thisUserID,
-        //     description: 'Task description',
-        //     status: 'pending',
-        // });
-        setButtonClicked(true);
-    };
-
+    // Сброс состояния кнопки после обновления списка задач
     useEffect(() => {
         if (buttonClicked) {
-            // Здесь вызывайте функцию обновления страницы
-            // Например, вы можете вызвать функцию, которая получает новый список задач
-            // Затем сбросьте состояние buttonClicked обратно в false
+            // Обновление списка задач
             setButtonClicked(false);
         }
     }, [buttonClicked, tasksList]);
 
-    const onDragFinish = ({from, to}: { from: any; to: any }) => {
+    // Обработчик нажатия на кнопку
+    const handleButtonClick = () => {
+        setButtonClicked(true);
+    };
+
+    // Обработчик завершения перетаскивания задач
+    const onDragFinish = ({ from, to }: { from: number; to: number }) => {
         if (Array.isArray(draggingList)) {
             const _list = [...draggingList];
             _list.splice(from, 1);
@@ -129,127 +77,125 @@ const BotList = ({ props, attachmentsCount }: any ) => {
         }
     };
 
-    useEffect(() => {
-        console.log("#1", users)
-    }, [users])
+    // Кнопка для добавления нового дела
+    const renderAddListBusinessButton = () => (
+        <Tooltip placement="top" text="Добавить дело">
+            <Button mode="link" onClick={() => setSelectAction("addListBusiness")}>
+                <AdaptiveIconRenderer
+                    IconCompact={platform === 'ios' ? Icon28FolderOutline : Icon24FolderOutline}
+                    IconRegular={Icon28FolderOutline}
+                />
+            </Button>
+        </Tooltip>
+    );
 
+    // Кнопка для добавления нового отчета
+    const renderAddNewReportButton = () => (
+        <Tooltip placement="top" text="Добавить отчет">
+            <Button mode="link" onClick={() => setSelectAction("addNewReport")}>
+                <AdaptiveIconRenderer
+                    IconCompact={platform === 'ios' ? Icon28DocumentOutline : Icon24DocumentOutline}
+                    IconRegular={Icon28DocumentOutline}
+                />
+            </Button>
+        </Tooltip>
+    );
 
+    console.log('#1 BotList', { buttonClicked, tasksList, thisUserData });
 
-
-
-    console.log("#1 thisUserData", thisUserData)
-
-    return (<>
+    return (
+        <>
+            {/* Заголовок панели */}
             <PanelHeader
-                         before={true ? <Icon20FolderFill/> : <PanelHeaderBack/>}
-                         after={ <> <div>{thisUserData?.username} </div> <Button mode="outline" size="s" onClick={()=>{
-
-                         }}>
-                             Выйти
-                         </Button> </>} >
+                before={<Icon20FolderFill />}
+                after={
+                    <>
+                        <div>{thisUserData?.username}</div>
+                        <Button mode="outline" size="s">Выйти</Button>
+                    </>
+                }
+            >
                 Список дел
             </PanelHeader>
 
-
-
+            {/* Группа с задачами */}
             <Group
-            header={
-                <Header mode="secondary" indicator="25"  aside={
-                    <Button size="s"
-                            appearance="accent"
-                            onClick={handleButtonClick}
-                            before={<Icon24Add/>}/>
-                }>
-                    Новые события
-                </Header>
-            }
-        >
-            <List>
-                {Array.isArray(tasksList.tasks) && tasksList.tasks.map((task : any) => (
-                    <Cell key={task._key}
-                          before={<Avatar fallbackIcon={<Icon28ClockOutline/>}/>}
-                          draggable
-                          onDragFinish={onDragFinish}
-                          subtitle={task.description}
-                    >
-                        {task.title}
-                    </Cell>
-                ))}
-            </List>
-            <Placeholder>
-                {/*  limit offset organization */}
-                <Pagination
-                    currentPage={currentPage}
-                    siblingCount={siblingCount}
-                    boundaryCount={boundaryCount}
-                    totalPages={totalPages}
-                    disabled={disabled}
-                    onChange={handleChange}
-                />
-            </Placeholder>
-        </Group>
-            <Group style={{height: '20px', opacity: 0}}>
+                header={
+                    <Header mode="secondary" indicator={tasksList.total} aside={
+                        <Button size="s" appearance="accent" onClick={handleButtonClick} before={<Icon24Add />} />
+                    }>
+                        Новые события
+                    </Header>
+                }
+            >
+                {/* Список задач */}
+                <List>
+                    {Array.isArray(tasksList.tasks) && tasksList.tasks.map((task: any) => (
+                        <Cell key={task._key}
+                              before={<Avatar fallbackIcon={<Icon28ClockOutline />} />}
+                              draggable
+                              onDragFinish={onDragFinish}
+                              subtitle={task.description}
+                        >
+                            {task.title}
+                        </Cell>
+                    ))}
+                </List>
+                {/* Пагинация */}
+                <Placeholder>
+                    <Pagination
+                        currentPage={currentPage}
+                        siblingCount={0}
+                        boundaryCount={1}
+                        totalPages={totalPages}
+                        disabled={false}
+                        onChange={handleChange}
+                    />
+                </Placeholder>
             </Group>
+
+            {/* Отступ для нижнего фиксированного меню */}
+            <Group style={{ height: '20px', opacity: 0 }}></Group>
+
+            {/* Нижнее фиксированное меню */}
             <FixedLayout vertical="bottom" filled>
                 <div>
-                    <Separator wide/>
+                    <Separator wide />
                     <WriteBar
                         before={
                             <>
-                                {text.length === 0 && (
-                                    <WriteBarIcon>{addListBusiness}</WriteBarIcon>
-                                )}
-                                {text.length === 0 && (
-                                    <WriteBarIcon>
-                                        {addNewReport}
-                                    </WriteBarIcon>
-                                )}
-                                {text.length > 0 &&
-                                    <>
-                                        {(selectAction === "addListBusiness") &&
-                                            <WriteBarIcon>{addListBusiness}</WriteBarIcon>}
-                                        {(selectAction === "addNewReport") &&
-                                            <WriteBarIcon>{addNewReport}</WriteBarIcon>}
-                                    </>
-                                }
+                                {text.length === 0 && renderAddListBusinessButton()}
+                                {text.length === 0 && renderAddNewReportButton()}
+                                {text.length > 0 && selectAction === "addListBusiness" && renderAddListBusinessButton()}
+                                {text.length > 0 && selectAction === "addNewReport" && renderAddNewReportButton()}
                             </>
                         }
                         after={
                             <>
-                                {text.length === 0 && (
-                                    <WriteBarIcon mode="send" disabled={true} />
-                                )}
-                                {text.length > 0 &&
-                                    <WriteBarIcon mode="send" onClick={() => sendNewTask()}/>}
+                                {text.length === 0 && <WriteBarIcon mode="send" disabled />}
+                                {text.length > 0 && <WriteBarIcon mode="send" onClick={sendNewTask} />}
                             </>
                         }
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => {
                             if (text.length > 0 && e.key === 'Enter' && !e.ctrlKey) {
-                                if (text === '\n') {
-                                    e.preventDefault();
-                                    setText('')
-                                }
-                                else
-                                {
-                                    e.preventDefault();
-                                    sendNewTask();
-                                }
+                                e.preventDefault();
+                                sendNewTask();
+
                             } else if (e.key === 'Enter' && e.ctrlKey) {
                                 setText(text + "\n");
                             }
                         }}
                         placeholder={
                             selectAction === "addListBusiness" ? "Добавление дела" :
-                            selectAction === "addNewReport" ? "Добавление отчета" : ""
+                                selectAction === "addNewReport" ? "Добавление отчета" : ""
                         }
                     />
                 </div>
             </FixedLayout>
         </>
     );
-
 };
 
 export default BotList;

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import socket from "../Logics/socket";
-
+import { v4 as uuidv4 } from 'uuid';
 
 type useSocketPropsType = {
     globalProps: {
@@ -84,17 +84,40 @@ const useSocket = (props: useSocketPropsType ) => {
 
 
     // ========== TASK BLOCK =============
+    const addTask = (newTask: any) => {
+        // Добавьте новую задачу в список
+        newTask._key = uuidv4(); // Generate a unique key
+
+        seTasksList((prevTasksList: any) => ({
+            ...prevTasksList,
+            tasks: [...prevTasksList.tasks, newTask], // Add the new task to the tasks array
+            total: prevTasksList.total + 1 // Increment the total by 1
+        }));
+    };
+
     const sendNewTask = () => {
         // Отправка новой задачи на сервер
         // add friends task controller (control to the task as group user)
-        socket.emit('new task', {
+
+        // получить количество задач
+
+        const newTask = {
             userID: thisUserID,
             title: 'Задача №1',
             description: text,
             status: 'pending',
-        } );
-        setText('')
-         setTest(selectedUser + "_comment_" + text)
+        };
+
+        // Emit the new task to the server
+        socket.emit('new task', newTask);
+
+        // Add the new task to the tasksList
+        addTask(newTask);
+
+        // Clear the text input
+        setText('');
+
+        // seTasksList(tasksList);
     };
 
 
@@ -146,7 +169,7 @@ const useSocket = (props: useSocketPropsType ) => {
     useEffect(() => {
         // Вычислите общее количество страниц на основе общего количества элементов и лимита
         const totalPages = Math.ceil(total / limit);
-        console.log('#10.1 totalPages', limit, offset ,totalPages)
+        console.log('#10.1 useEffect', limit, offset ,totalPages)
         setTotalPages(totalPages);
     }, [total, limit, tasksList]);
     // ========== END TASK BLOCK =============
@@ -388,7 +411,7 @@ const useSocket = (props: useSocketPropsType ) => {
         sendNewTask,
         tasksList,
         totalPages,
-
+        seTasksList,
         handleChange,
         currentPage,
         limit,

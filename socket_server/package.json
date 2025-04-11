@@ -11,8 +11,11 @@
   "dependencies": {
     "@socket.io/sticky": "^1.0.4",
     "@telegram-auth/server": "^1.0.3",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
     "arangojs": "^8.7.0",
     "ioredis": "^4.22.0",
-    "socket.io": "^4.7.4"
+    "socket.io": "^4.7.4",
+    "typescript": "^5.7.2"
   }
 }

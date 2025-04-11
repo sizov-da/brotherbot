@@ -10,7 +10,10 @@ if (cluster.isMaster) {
   for (let i = 0; i < WORKERS_COUNT; i++) {
     cluster.fork();
   }
-
+  cluster.on("error", (err) => {
+    console.error("Cluster error:", err);
+    // При необходимости выполните перезапуск или дополнительную обработку
+  });
   cluster.on("exit", (worker) => {
     console.log(`Worker ${worker.process.pid} died`);
     cluster.fork();
