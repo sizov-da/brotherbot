@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import socket from "../Logics/socket";
 import { v4 as uuidv4 } from 'uuid';
 
+// Типизация для входных данных хука
 type useSocketPropsType = {
     globalProps: {
         user: {
@@ -9,92 +10,98 @@ type useSocketPropsType = {
             uid: string;
         };
     };
-} | undefined
+} | undefined;
 
+// Константы для сообщений об ошибках
 const ERROR_MESSAGES = {
     INVALID_USERNAME: "invalid username",
     INVALID_PASSWORD: "Invalid password"
 };
 
-const useSocket = (props: useSocketPropsType ) => {
+// Основной хук useSocket
+const useSocket = (props: useSocketPropsType) => {
 
-    // ========== SESSION BLOCK =============
-    const [sessionID, setSessionID] = React.useState <string | null>(null);
-    const [hash, setHash] = React.useState <string | null>(null);
-    const [inputLoginData, setInputLoginData] = React.useState <string | null>(null);
-    const [asNewUserId, setAsNewUserId] = React.useState <string | null>(null);
+    // ========== SESSION BLOCK ============
+    // Состояния для управления сессией
+    const [sessionID, setSessionID] = React.useState<string | null>(null);
+    const [hash, setHash] = React.useState<string | null>(null);
+    const [inputLoginData, setInputLoginData] = React.useState<string | null>(null);
+    const [asNewUserId, setAsNewUserId] = React.useState<string | null>(null);
 
-    // ========== USER BLOCK =============
+    // ========== USER BLOCK ============
+    // Состояния для управления пользователями
     const [users, setUsers] = useState<any>([]);
     const [usernameIsDb, setUsernameIsDb] = useState<any>([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [usernameAlreadySelected, setUsernameAlreadySelected] = React.useState(false);
-    const [thisUserID, setThisUserID] = React.useState(null)
+    const [thisUserID, setThisUserID] = React.useState(null);
 
-    // ========== MASSAGE BLOCK =============
-    const [selectUserMassages, setSelectUserMassages] = React.useState([])
-    const [selectUser_i, setSelectUser_i] = React.useState<number | null>(null)
+    // ========== MESSAGE BLOCK ============
+    // Состояния для управления сообщениями
+    const [selectUserMassages, setSelectUserMassages] = React.useState([]);
+    const [selectUser_i, setSelectUser_i] = React.useState<number | null>(null);
     const [isAttachmentsShown, setIsAttachmentsShown] = React.useState(false);
 
-
-    // ========== TASK BLOCK =============
+    // ========== TASK BLOCK ============
+    // Состояния для управления задачами
     const [text, setText] = React.useState('');
     const [, setTest] = React.useState<any>(true);
     const [tasksList, seTasksList] = React.useState<any>(true);
-    const [limit, setLimit] = useState(10); // Вы можете установить начальное значение в соответствии с вашими требованиями
-    const [offset, setOffset] = useState(0);
+    const [limit, setLimit] = useState(10); // Лимит задач на странице
+    const [offset, setOffset] = useState(0); // Смещение для пагинации
     const [currentPage, setCurrentPage] = useState<number | undefined>(1);
 
-    const [total, setTotal] = useState(0); // Добавьте состояние для общего количества элементов
-    const [totalPages, setTotalPages] = useState(0); // Добавьте состояние для общего количества страниц
+    const [total, setTotal] = useState(0); // Общее количество задач
+    const [totalPages, setTotalPages] = useState(0); // Общее количество страниц
 
-
-
-
-
+    // Функция для отправки сообщения
     const sendMassage = () => {
         if (selectedUser && selectUser_i !== null) {
             const message = {
                 content: text,
                 from: thisUserID,
                 to: selectedUser
-            }
-            users[selectUser_i].messages.push(message)
+            };
+            users[selectUser_i].messages.push(message);
             socket.emit("private message", message);
-            setText('')
-            setTest(selectedUser + "_comment_" + text)
+            setText('');
+            setTest(selectedUser + "_comment_" + text);
         }
     };
 
+    // Функция для выбора пользователя
     const selectedUser2 = (selectedUserID: any) => {
         // props
         if (props && props.globalProps) {
-            props.globalProps.user.login = "Sizov_DA"
-            props.globalProps.user.uid = "3333333"
+            props.globalProps.user.login = "Sizov_DA";
+            props.globalProps.user.uid = "3333333";
         }
-        setSelectedUser(selectedUserID)
+        setSelectedUser(selectedUserID);
         for (let i = 0; i < users.length; i++) {
             if (users[i].userID === selectedUserID) {
-                setSelectUserMassages(users[i].messages)
-                setSelectUser_i(i)
+                setSelectUserMassages(users[i].messages);
+                setSelectUser_i(i);
                 break;
             }
         }
-    }
+    };
 
 
     // ========== TASK BLOCK =============
+
+    // Добавление новой задачи
     const addTask = (newTask: any) => {
         // Добавьте новую задачу в список
-        newTask._key = uuidv4(); // Generate a unique key
+        newTask._key = uuidv4(); // Генерация уникального ключа
 
         seTasksList((prevTasksList: any) => ({
             ...prevTasksList,
-            tasks: [...prevTasksList.tasks, newTask], // Add the new task to the tasks array
-            total: prevTasksList.total + 1 // Increment the total by 1
+            tasks: [...prevTasksList.tasks, newTask], // Добавление задачи в список
+            total: prevTasksList.total + 1 // Увеличение общего количества задач
         }));
     };
 
+    // Отправка новой задачи
     const sendNewTask = () => {
         // Отправка новой задачи на сервер
         // add friends task controller (control to the task as group user)
@@ -107,42 +114,35 @@ const useSocket = (props: useSocketPropsType ) => {
             description: text,
             status: 'pending',
         };
-
-        // Emit the new task to the server
-        socket.emit('new task', newTask);
-
-        // Add the new task to the tasksList
-        addTask(newTask);
-
-        // Clear the text input
-        setText('');
-
-        // seTasksList(tasksList);
+        socket.emit('new task', newTask); // Отправка задачи на сервер
+        addTask(newTask); // Добавление задачи в локальный список
+        setText(''); // Очистка поля ввода
     };
 
-
+    // Обработка задач, полученных через сокет
     const processTasksFromASocket = (tasks: any) => {
         console.log('#10 tasks',tasks); // Здесь вы можете обработать полученные задачи
         setTotal(tasks.total)
         seTasksList(tasks);
     };
 
+    // Обработка новой задачи, полученной через сокет
     const processNewTaskFromASocket = (tasks: any) => {
         // Обработка новой задачи
         console.log('#10 tasks',tasks);
     };
 
+    // Подключение задач через сокет
     const tasksListConnect = () => {
         // Получение всех задач при инициализации страницы
         socket.emit('tasks_limit_offset', { limit: limit, offset: offset });
        // socket.on('tasks', processTasksFromASocket);
         socket.on('tasks_limit_offset', processTasksFromASocket);
         socket.on('new task', processNewTaskFromASocket);
+    };
 
-    }
-
-
-    const handleChange =  React.useCallback((page: React.SetStateAction<number | undefined>) => {
+    // Обработка изменения страницы в пагинации
+    const handleChange = React.useCallback((page: React.SetStateAction<number | undefined>) => {
         if (page !== undefined) {
             setCurrentPage(page);
             console.log('#10.1', page, limit, offset)
@@ -155,7 +155,7 @@ const useSocket = (props: useSocketPropsType ) => {
         }
     }, []);
 
-    // Функция для получения данных
+    // Получение данных с сервера
     const fetchData = async (limit: number, offset: number) => {
         // Здесь реализуйте логику для получения данных с серв��ра
         // Используйте параметры limit и offset в вашем запросе
@@ -164,8 +164,7 @@ const useSocket = (props: useSocketPropsType ) => {
 
     };
 
-
-
+    // Вычисление общего количества страниц
     useEffect(() => {
         // Вычислите общее количество страниц на основе общего количества элементов и лимита
         const totalPages = Math.ceil(total / limit);
@@ -197,6 +196,7 @@ const useSocket = (props: useSocketPropsType ) => {
         }
         setHash(e.target.value)
     }
+    // Создание сессии сокета
     const creatSocketSession = () => {
         socket.on("session", ({sessionID, userID, hash , username, newUser}) => {
             console.log('#9', sessionID, userID , hash ,  inputLoginData )
@@ -222,6 +222,7 @@ const useSocket = (props: useSocketPropsType ) => {
             setHash(null);
             setUsernameAlreadySelected(false);
         };
+
         socket.on("connect_error", (err) => {
             if (err.message === ERROR_MESSAGES.INVALID_USERNAME) {
                 handleAuthError(err.message, setSessionID, setHash, setUsernameAlreadySelected);
@@ -235,19 +236,20 @@ const useSocket = (props: useSocketPropsType ) => {
         });
 
         if (!sessionID) {
-            setSessionID(localStorage.getItem("sessionID"))
-            setHash(localStorage.getItem("hash"))
-            setUsernameIsDb(localStorage.getItem("inputLoginData"))
-            // setHash(localStorage.getItem("hash"))
+            setSessionID(localStorage.getItem("sessionID"));
+            setHash(localStorage.getItem("hash"));
+            setUsernameIsDb(localStorage.getItem("inputLoginData"));
         }
         if (sessionID) {
-            const username = usernameIsDb
+            const username = usernameIsDb;
             console.log('###3',{ sessionID, hash, username })
             socket.auth = { sessionID, hash, username };
             socket.connect();
             setUsernameAlreadySelected(true);
         }
-    }
+    };
+
+    // Создание компонентов сокета
     const createdSocketComponent = () => {
         socket.on("connect", () => {
             users.forEach((user: any) => {
@@ -288,7 +290,6 @@ const useSocket = (props: useSocketPropsType ) => {
                 user.self = user.userID === socket.id;
                 initReactiveProperties(user);
                 socketUsers.push(user);
-
             });
             // put the current user first, and sort by username
             socketUsers.sort((a: any, b: any) => {
@@ -302,7 +303,7 @@ const useSocket = (props: useSocketPropsType ) => {
 
         if (users.length) {
             socket.on("user connected", (socketConnectedUser: any) => {
-                let x = users
+                let x = users;
                 for (let i = 0; i < x.length; i++) {
                     const existingUser: any = x[i];
                     if (existingUser.userID === socketConnectedUser.userID) {
@@ -311,13 +312,12 @@ const useSocket = (props: useSocketPropsType ) => {
                     }
                 }
                 initReactiveProperties(socketConnectedUser);
-                setUsers(x)
-                setTest(socketConnectedUser.userID + "_connect")
-                // rerender()
+                setUsers(x);
+                setTest(socketConnectedUser.userID + "_connect");
             });
 
             socket.on("user disconnected", (id) => {
-                const x = users
+                const x = users;
                 for (let i = 0; i < x.length; i++) {
                     const user: any = x[i];
                     if (user.userID === id) {
@@ -325,17 +325,15 @@ const useSocket = (props: useSocketPropsType ) => {
                         break;
                     }
                 }
-                setUsers(x)
-                setTest(id + "_disconnect")
-                // setUsernameAlreadySelected(false);
-
+                setUsers(x);
+                setTest(id + "_disconnect");
             });
 
             // ========== END USER BLOCK =============
 
-            // ========== MASSAGE BLOCK =============
+            // ========== MESSAGE BLOCK =============
 
-            socket.on("private message", ({content, from, to}) => {
+            socket.on("private message", ({ content, from, to }) => {
                 for (let i = 0; i < users.length; i++) {
                     const user: any = users[i];
                     const fromSelf = socket.id === from;
@@ -353,11 +351,13 @@ const useSocket = (props: useSocketPropsType ) => {
                         break;
                     }
                 }
-                setTest(content + "_message")
+                setTest(content + "_message");
             });
             // ========== END MASSAGE BLOCK =============
         }
-    }
+    };
+
+    // Отключение сокета
     const disconnectSocket = () => {
         socket.off("connect");
         socket.off("disconnect");
@@ -370,28 +370,27 @@ const useSocket = (props: useSocketPropsType ) => {
         if (users.length) {
             socket.disconnect();
         }
-    }
+    };
 
-
-
-
+    // Инициализация сокета
     useEffect(() => {
-            if (!usernameAlreadySelected) {
-                creatSocketSession()
-            }
-            tasksListConnect()
-            createdSocketComponent()
-            return (() => {
-                disconnectSocket()
-            });
-        },
-        [
-            users,
-            sessionID,
-            usernameAlreadySelected,
-        ]);
+        if (!usernameAlreadySelected) {
+            creatSocketSession();
+        }
+        tasksListConnect();
+        createdSocketComponent();
+        return (() => {
+            disconnectSocket();
+        });
+    }, [
+        users,
+        sessionID,
+        usernameAlreadySelected,
+    ]);
 
-    return { users,
+    // Возвращаемые значения хука
+    return {
+        users,
         selectedUser,
         selectUserMassages,
         thisUserID,
