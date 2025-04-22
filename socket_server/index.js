@@ -1,21 +1,6 @@
 const httpServer = require("http").createServer();
-// const Redis = require("ioredis");
-const {Database} = require("arangojs");
-
-// const {AuthDataValidator} = require('@telegram-auth/server');
-// const {urlStrToAuthDataMap} = require('@telegram-auth/server/utils');
-
-
-// const redisClient = new Redis();
-
-const db = new Database({
-    url: "http://45.80.70.119:8529",
-    databaseName: "brobot",
-    auth: {
-        username: "root",
-        password: "rootpassword"
-    },
-});
+const { setupWorker } = require("@socket.io/sticky");
+const databaseInitializer = require("./infrastructure/database");
 
 
 const io = require("socket.io")(httpServer, {
@@ -26,7 +11,19 @@ const io = require("socket.io")(httpServer, {
     },
 });
 
-const {setupWorker} = require("@socket.io/sticky");
+// Инициализация базы данных
+(async () => {
+    try {
+        await databaseInitializer.initialize();
+        console.log("База данных успешно инициализирована.");
+    } catch (error) {
+        console.error("Ошибка инициализации базы данных:", error);
+    }
+})();
+
+
+const db = databaseInitializer.getDb();
+
 const crypto = require("crypto");
 const randomId = () => crypto.randomBytes(8).toString("hex");
 
@@ -261,13 +258,14 @@ io.on("connection", async (socket) => {
 
                 // ========== TASK - GET DATA - COMPONENT =============
 
-                socket.on("tasks_limit_offset", async ({limit, offset}) => {
+                socket.on("tasks_limit_offset", async ({ parentTaskID, limit, offset}) => {
+                    console.log("#7,2 tasks_limit_offset", { parentTaskID, limit, offset });
                     try {
-                        const tasks = await taskStore.findTasksForUser(socket.userID, limit, offset);
-                        console.log("#7 get tasks", tasks);
+                        const tasks = await taskStore.findTasksAndReports(socket.userID, parentTaskID, limit, offset);
+                        // console.log("#7 get tasks", tasks);
 
-                        const count = await taskStore.countTasksForUser(socket.userID);
-                        console.log("#7 get tasks count", count);
+                        const count = await taskStore.countTasksByParentTaskID(socket.userID, parentTaskID);
+                        // console.log("#7 get tasks count", count);
 
                         socket.emit("tasks_limit_offset", { tasks: tasks, total: count } );
                     } catch (error) {
@@ -288,6 +286,75 @@ io.on("connection", async (socket) => {
                         console.error("Error saving new task:", error);
                     }
                 });
+
+                // Создание новой задачи
+                socket.on("create_task", async (task) => {
+                    console.log("#7 SAVE new task", task);
+                    try {
+                        await taskStore.saveTask(task);
+                        // await databaseInitializer.createTask(task);
+                        socket.emit("task_created", { success: true, task });
+                    } catch (error) {
+                        socket.emit("task_created", { success: false, error });
+                    }
+                });
+
+
+                socket.on("create_subtask", async (subtask) => {
+                    try {
+                        await databaseInitializer.createSubtask(subtask);
+                        socket.emit("subtask_created", { success: true, subtask });
+                    } catch (error) {
+                        socket.emit("subtask_created", { success: false, error });
+                    }
+                });
+
+                // Добавление отчета к задаче
+                socket.on("add_report", async (report) => {
+                    try {
+                        await databaseInitializer.addReportToTask(report);
+                        socket.emit("report_added", { success: true, report });
+                    } catch (error) {
+                        socket.emit("report_added", { success: false, error });
+                    }
+                });
+
+                // Получение деталей задачи
+                socket.on("get_task_details", async (taskId) => {
+                    try {
+                        const details = await databaseInitializer.getTaskDetails(taskId);
+                        socket.emit("task_details", { success: true, details });
+                    } catch (error) {
+                        socket.emit("task_details", { success: false, error });
+                    }
+                });
+
+                // Удаление задачи
+                socket.on("delete_task", async (task) => {
+
+                    console.log("#7 DELETE task", task);
+                    try {
+                        await taskStore.deleteTask(task.taskId); // Реализуйте метод deleteTask в taskStore
+                        socket.emit("task_deleted", { success: true, taskId: task.taskId });
+                    } catch (error) {
+                        console.error("Error deleting task:", error);
+                        socket.emit("task_deleted", { success: false, error });
+                    }
+                });
+
+                // Удаление отчета
+                socket.on("delete_report", async (report) => {
+
+                    console.log("#7 DELETE report", report);
+                    try {
+                        await databaseInitializer.deleteReport(report.reportId); // Реализуйте метод deleteReport в databaseInitializer
+                        socket.emit("report_deleted", { success: true, reportId: report.reportId });
+                    } catch (error) {
+                        console.error("Error deleting report:", error);
+                        socket.emit("report_deleted", { success: false, error });
+                    }
+                });
+
                 // ========== END TASK - SAVE DATA - TASK COMPONENT =============
 
         // ========== END TASK BLOCK =============
@@ -307,6 +374,7 @@ io.on("connection", async (socket) => {
             });
         }
     });
+
 
 });
 

@@ -47,7 +47,7 @@ function App({ route }: any) {
 
     return (
         <ConfigProvider
-            appearance="light"
+            // appearance="light"
         >
             <AdaptivityProvider>
                 <AppRoot mode={"full"}>

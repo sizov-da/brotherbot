@@ -11,14 +11,74 @@ type useSocketPropsType = {
         };
     };
 } | undefined;
-
+// Определяем тип задачи
+type TaskType = {
+    _id: string;
+    title: string;
+    description: string;
+    status: string;
+    createdAt: string;
+};
 // Константы для сообщений об ошибках
 const ERROR_MESSAGES = {
     INVALID_USERNAME: "invalid username",
     INVALID_PASSWORD: "Invalid password"
 };
 
-// Основной хук useSocket
+/**
+ * Хук `useSocket` предназначен для управления взаимодействием с сервером через WebSocket.
+ * Он обеспечивает функциональность для работы с пользователями, задачами, сообщениями и сессиями.
+ *
+ * Основные возможности:
+ * - Управление сессией пользователя (создание, подключение, аутентификация).
+ * - Работа с пользователями (получение списка, подключение/отключение, выбор пользователя).
+ * - Обмен сообщениями между пользователями.
+ * - Управление задачами и отчетами (создание, получение, добавление).
+ * - Поддержка пагинации для списка задач.
+ *
+ * Входные параметры:
+ * @param {useSocketPropsType} props - Объект с глобальными свойствами, содержащий данные о текущем пользователе.
+ *
+ * Возвращаемые значения:
+ * - `users` - Список всех пользователей, подключенных через сокет.
+ * - `selectedUser` - Текущий выбранный пользователь.
+ * - `selectUserMassages` - Сообщения, связанные с выбранным пользователем.
+ * - `thisUserID` - ID текущего пользователя.
+ * - `sendMassage` - Функция для отправки сообщения выбранному пользователю.
+ * - `selectedUser2` - Функция для выбора пользователя.
+ * - `onUsernameSelection` - Функция для выбора имени пользователя и создания сессии.
+ * - `loginData` - Функция для обработки ввода логина.
+ * - `passwordData` - Функция для обработки ввода пароля.
+ * - `inputLoginData` - Введенные данные логина.
+ * - `inputPasswordDataData` - Введенные данные пароля (хэш).
+ * - `text` - Текст сообщения или задачи, вводимый пользователем.
+ * - `setText` - Функция для обновления текста сообщения или задачи.
+ * - `usernameAlreadySelected` - Флаг, указывающий, выбрано ли имя пользователя.
+ * - `setUsernameAlreadySelected` - Функция для обновления флага выбора имени пользователя.
+ * - `isAttachmentsShown` - Флаг, указывающий, отображаются ли вложения.
+ * - `setIsAttachmentsShown` - Функция для управления отображением вложений.
+ * - `sendNewTask` - Функция для отправки новой задачи.
+ * - `tasksList` - Список задач, полученных через сокет.
+ * - `reportList` - Список отчетов, связанных с задачами.
+ * - `totalPages` - Общее количество страниц для пагинации.
+ * - `seTasksList` - Функция для обновления списка задач.
+ * - `handleChange` - Функция для обработки изменения текущей страницы в пагинации.
+ * - `currentPage` - Текущая страница в пагинации.
+ * - `limit` - Лимит задач на одной странице.
+ * - `offset` - Смещение для пагинации.
+ * - `setOffset` - Функция для обновления смещения.
+ * - `setLimit` - Функция для обновления лимита задач на странице.
+ * - `setCurrentPage` - Функция для обновления текущей страницы.
+ * - `createTask` - Функция для создания новой задачи.
+ * - `addReportToTask` - Функция для добавления отчета к задаче.
+ * - `getTaskDetails` - Функция для получения деталей задачи.
+ * - `createSubtask` - Функция для создания подзадачи.
+ *
+ * Примечания:
+ * - Хук использует `socket` для взаимодействия с сервером.
+ * - Все данные и события обрабатываются в реальном времени через WebSocket.
+ * - Хук автоматически подключается к серверу при монтировании и отключается при размонтировании.
+ */
 const useSocket = (props: useSocketPropsType) => {
 
     // ========== SESSION BLOCK ============
@@ -47,9 +107,18 @@ const useSocket = (props: useSocketPropsType) => {
     const [text, setText] = React.useState('');
     const [, setTest] = React.useState<any>(true);
     const [tasksList, seTasksList] = React.useState<any>(true);
+    const [reportList, setReportList] = React.useState<any>(true);
     const [limit, setLimit] = useState(10); // Лимит задач на странице
     const [offset, setOffset] = useState(0); // Смещение для пагинации
     const [currentPage, setCurrentPage] = useState<number | undefined>(1);
+    const [selectedTaskID, setSelectedTaskID] = useState<string | null>(null); // ID выбранной задачи
+    const [breadcrumbPath, setBreadcrumbPath] = useState<string[]>([]);
+    const [draggingList, updateDraggingList] = useState(tasksList); // Список задач для перетаскивания
+
+
+
+
+
 
     const [total, setTotal] = useState(0); // Общее количество задач
     const [totalPages, setTotalPages] = useState(0); // Общее количество страниц
@@ -89,7 +158,7 @@ const useSocket = (props: useSocketPropsType) => {
 
     // ========== TASK BLOCK =============
 
-    // Добавление новой задачи
+    // Добавление новой задачи в список фронтенда
     const addTask = (newTask: any) => {
         // Добавьте новую задачу в список
         newTask._key = uuidv4(); // Генерация уникального ключа
@@ -101,22 +170,118 @@ const useSocket = (props: useSocketPropsType) => {
         }));
     };
 
-    // Отправка новой задачи
+    // Добавление нового отчета в список фронтенда
+    const addReport = (newReport: any) => {
+
+        // Добавьте новый отчет в список
+        newReport._key = uuidv4(); // Генерация уникального ключа
+
+        setReportList((prevReportList: any) => ({
+            ...prevReportList,
+            tasks: [...prevReportList.tasks, newReport], // Добавление задачи в список
+            total: prevReportList.total + 1 // Увеличение общего количества задач
+        }));
+    };
+
+    // Добавление новой задачи
+    const createTask = (task: any) => {
+        addTask(task);
+        socket.emit("create_task", task, (response: any) => {
+            if (response.success) {
+                console.log("Задача создана:", response.task);
+            } else {
+                console.error("Ошибка создания задачи:", response.error);
+            }
+        });
+    };
+
+    const createSubtask = (subtask: any) => {
+        socket.emit("create_subtask", subtask, (response: any) => {
+            if (response.success) {
+                console.log("Подзадача создана:", response.subtask);
+            } else {
+                console.error("Ошибка создания подзадачи:", response.error);
+            }
+        });
+    };
+
+
+    // Добавление отчета к задаче
+    const addReportToTask = (report: any) => {
+        addTask(report);
+        socket.emit("add_report", report, (response: any) => {
+            if (response.success) {
+                console.log("Отчет добавлен:", response.report);
+            } else {
+                console.error("Ошибка добавления отчета:", response.error);
+            }
+        });
+    };
+
+    // Получение деталей задачи
+    const getTaskDetails = (taskId: string) => {
+        socket.emit("get_task_details", taskId, (response: any) => {
+            if (response.success) {
+                console.log("Детали задачи:", response.details);
+            } else {
+                console.error("Ошибка получения деталей задачи:", response.error);
+            }
+        });
+    };
+
+
+    /**
+     *
+     * Отправка новой задачи
+     *
+     * Использует сокет для отправки задачи на сервер и добавляет её в локальный список задач.
+     *
+     * тут должна реализоваться правильная обработка моего дело и обработка отчета
+     * дело - это задача, которая должна быть выполнена
+     * отчет - это результат работы который включает в себя время выполнения задачи ресурсы и тд
+     * дело - может быть выполнено несколькими пользователями
+     * отчет - может быть выполнен только одним пользователем
+     * у дела может быть несколько отчетов
+     * у дела может быть несколько дел
+     * у дела может быть несколько пользователей
+     * если нажать на дело то открывается список дел которые создоны для этого дела
+     *
+     *
+     * thisUserID - ID текущего пользователя
+     * text - текст задачи
+     *
+     * title - заголовок задачи (например, "Задача №1" еще не реализовано)
+     * status - статус задачи (например, "pending" еще не реализовано)
+     *
+     * @returns void
+     * @description Отправляет новую задачу на сервер и добавляет её в локальный список задач.
+     *
+     *
+     */
     const sendNewTask = () => {
         // Отправка новой задачи на сервер
         // add friends task controller (control to the task as group user)
 
         // получить количество задач
+        const newTask: {
+            userID: string | null;
+            title: string;
+            description: string;
+            status: string;
+            createdAt: string;
+        } = {
+           userID: thisUserID, // ID текущего пользователя
+           title: 'Задача №1 Основная задача', // Заголовок задачи
+           description: text, // Описание задачи из состояния text
+           status: 'pending', // Статус задачи
 
-        const newTask = {
-            userID: thisUserID,
-            title: 'Задача №1',
-            description: text,
-            status: 'pending',
-        };
-        socket.emit('new task', newTask); // Отправка задачи на сервер
-        addTask(newTask); // Добавление задачи в локальный список
-        setText(''); // Очистка поля ввода
+           createdAt: new Date().toISOString(), // Дата создания задачи
+
+       };
+       socket.emit('new task', newTask); // Отправка задачи на сервер
+        console.log("#20 new task",newTask);
+       addTask(newTask); // Добавление задачи в локальный список
+       setText(''); // Очистка поля ввода
     };
 
     // Обработка задач, полученных через сокет
@@ -135,7 +300,7 @@ const useSocket = (props: useSocketPropsType) => {
     // Подключение задач через сокет
     const tasksListConnect = () => {
         // Получение всех задач при инициализации страницы
-        socket.emit('tasks_limit_offset', { limit: limit, offset: offset });
+        socket.emit('tasks_limit_offset', { parentTaskID: selectedTaskID,  limit: limit, offset: offset });
        // socket.on('tasks', processTasksFromASocket);
         socket.on('tasks_limit_offset', processTasksFromASocket);
         socket.on('new task', processNewTaskFromASocket);
@@ -157,10 +322,10 @@ const useSocket = (props: useSocketPropsType) => {
 
     // Получение данных с сервера
     const fetchData = async (limit: number, offset: number) => {
-        // Здесь реализуйте логику для получения данных с серв��ра
+        // Здесь реализуйте логику для получения данных с сервера
         // Используйте параметры limit и offset в вашем запросе
-        console.log('#10.1', limit, offset)
-        socket.emit('tasks_limit_offset', { limit: limit, offset: offset });
+        console.log('#10.1 tasks_limit_offset', { parentTaskID: selectedTaskID, limit: limit, offset: offset })
+        socket.emit('tasks_limit_offset', { parentTaskID: selectedTaskID, limit: limit, offset: offset });
 
     };
 
@@ -171,6 +336,125 @@ const useSocket = (props: useSocketPropsType) => {
         console.log('#10.1 useEffect', limit, offset ,totalPages)
         setTotalPages(totalPages);
     }, [total, limit, tasksList]);
+
+    // Автоматический вызов запроса при изменении выбранной папки
+    useEffect(() => {
+        // if (selectedTaskID !== null) {
+            fetchData(limit, offset);
+        // }
+        console.log('#10.1 useEffect', selectedTaskID)
+    }, [selectedTaskID, limit, offset]);
+
+
+
+    // Функция для обновления пути
+    const updateBreadcrumbPath = (folderId: string) => {
+        setBreadcrumbPath((prevPath) => [...prevPath, folderId]);
+    };
+
+    // Функция для возврата к предыдущей папке
+    const goBackInBreadcrumb = (index: number) => {
+        if (index === -1) {
+            setBreadcrumbPath([]); // Сбрасываем путь к корню
+            setSelectedTaskID(null); // Устанавливаем выбранный taskID в null
+        } else {
+            // setSelectedTaskID(index)
+            setBreadcrumbPath((prevPath) => prevPath.slice(0, index + 1));
+            setSelectedTaskID(breadcrumbPath[index] || null);
+        }
+        console.log("#10.1", index, breadcrumbPath, selectedTaskID, (index === -1 ? "true" : "false"));
+
+    };
+
+
+
+
+
+    const deleteTask = (taskId: string) => {
+        socket.emit("delete_task",  { taskId:taskId, parentTaskID: selectedTaskID});
+
+    };
+
+    const deleteReport = (reportId: string) => {
+        socket.emit("delete_report", {reportId:reportId, parentTaskID: selectedTaskID});
+
+    };
+
+
+    // useEffect(() => {
+    //     // Обработчик удаления задачи
+    //     socket.on("task_deleted", ({ success, taskId }) => {
+    //         if (success) {
+    //             seTasksList((prevTasksList: any) => {
+    //                 if (prevTasksList && prevTasksList.tasks && Array.isArray(prevTasksList.tasks)) {
+    //                     const updatedTasks = prevTasksList.tasks.filter((task: any) => task._key !== taskId);
+    //                     return {
+    //                         ...prevTasksList,
+    //                         tasks: updatedTasks,
+    //                         total: prevTasksList.total - 1,
+    //                     };
+    //                 } else {
+    //                     console.error("prevTasksList.tasks is undefined or not an array");
+    //                     return prevTasksList; // Возвращаем предыдущее состояние без изменений
+    //                 }
+    //             });
+    //         } else {
+    //             console.error("Failed to delete task");
+    //         }
+    //     });
+    //
+    //     // Обработчик удаления отчета
+    //     socket.on("report_deleted", ({ success, reportId }) => {
+    //         if (success) {
+    //             setReportList((prevReportList: any) => {
+    //                 if (prevReportList && prevReportList.tasks && Array.isArray(prevReportList.tasks)) {
+    //                     const updatedReports = prevReportList.tasks.filter((report: any) => report._key !== reportId);
+    //                     return {
+    //                         ...prevReportList,
+    //                         tasks: updatedReports,
+    //                         total: prevReportList.total - 1,
+    //                     };
+    //                 } else {
+    //                     console.error("prevReportList.tasks is undefined or not an array");
+    //                     return prevReportList; // Возвращаем предыдущее состояние без изменений
+    //                 }
+    //             });
+    //         } else {
+    //             console.error("Failed to delete report");
+    //         }
+    //     });
+    // }, [seTasksList, setReportList]);
+    //
+    //
+    // useEffect(() => {
+    //     socket.on("task_deleted", ({ success, taskId }) => {
+    //         if (success) {
+    //             updateDraggingList((prevDraggingList: any) => {
+    //                 if (Array.isArray(prevDraggingList)) {
+    //                     return prevDraggingList.filter((task: any) => task._key !== taskId);
+    //                 } else {
+    //                     console.error("prevDraggingList is not an array");
+    //                     return prevDraggingList;
+    //                 }
+    //             });
+    //         }
+    //     });
+    //
+    //     socket.on("report_deleted", ({ success, reportId }) => {
+    //         if (success) {
+    //             updateDraggingList((prevDraggingList: any) => {
+    //                 if (Array.isArray(prevDraggingList)) {
+    //                     return prevDraggingList.filter((report: any) => report._key !== reportId);
+    //                 } else {
+    //                     console.error("prevDraggingList is not an array");
+    //                     return prevDraggingList;
+    //                 }
+    //             });
+    //         }
+    //     });
+    // }, []);
+
+
     // ========== END TASK BLOCK =============
 
 
@@ -354,6 +638,29 @@ const useSocket = (props: useSocketPropsType) => {
                 setTest(content + "_message");
             });
             // ========== END MASSAGE BLOCK =============
+
+            // Обработчик удаления задачи
+            socket.on("task_deleted", ({ success, taskId }) => {
+                if (success) {
+                    seTasksList((prevTasks: TaskType[]) => prevTasks.filter((task: TaskType) => task._id !== taskId));
+                } else {
+                    console.error("Failed to delete task");
+                }
+            });
+
+            // Обработчик удаления отчета
+            socket.on("report_deleted", ({ success, reportId }) => {
+                if (success) {
+                    console.log(`Report ${reportId} deleted successfully`);
+                } else {
+                    console.error("Failed to delete report");
+                }
+            });
+
+
+
+
+
         }
     };
 
@@ -385,39 +692,54 @@ const useSocket = (props: useSocketPropsType) => {
     }, [
         users,
         sessionID,
-        usernameAlreadySelected,
+        usernameAlreadySelected
+
     ]);
 
     // Возвращаемые значения хука
     return {
-        users,
-        selectedUser,
-        selectUserMassages,
-        thisUserID,
-        sendMassage,
-        selectedUser2,
-        onUsernameSelection,
-        loginData,
-        passwordData,
-        inputLoginData,
-        inputPasswordDataData: hash,
-        text,
-        setText,
-        usernameAlreadySelected,
-        setUsernameAlreadySelected,
-        isAttachmentsShown,
-        setIsAttachmentsShown,
-        sendNewTask,
-        tasksList,
-        totalPages,
-        seTasksList,
-        handleChange,
-        currentPage,
-        limit,
-        offset,
-        setOffset,
-        setLimit,
-        setCurrentPage
+        selectedTaskID, // ID выбранной задачи
+        setSelectedTaskID, // Функция для установки ID выбранной задачи
+        users, // Список всех пользователей, подключенных через сокет
+        selectedUser, // Текущий выбранный пользователь
+        selectUserMassages, // Сообщения, связанные с выбранным пользователем
+        thisUserID, // ID текущего пользователя
+        sendMassage, // Функция для отправки сообщения выбранному пользователю
+        selectedUser2, // Функция для выбора пользователя
+        onUsernameSelection, // Функция для выбора имени пользователя и создания сессии
+        loginData, // Функция для обработки ввода логина
+        passwordData, // Функция для обработки ввода пароля
+        inputLoginData, // Введенные данные логина
+        inputPasswordDataData: hash, // Введенные данные пароля (хэш)
+        text, // Текст сообщения или задачи, вводимый пользователем
+        setText, // Функция для обновления текста сообщения или задачи
+        usernameAlreadySelected, // Флаг, указывающий, выбрано ли имя пользователя
+        setUsernameAlreadySelected, // Функция для обновления флага выбора имени пользователя
+        isAttachmentsShown, // Флаг, указывающий, отображаются ли вложения
+        setIsAttachmentsShown, // Функция для управления отображением вложений
+        sendNewTask, // Функция для отправки новой задачи
+        tasksList, // Список задач, полученных через сокет
+        reportList, // Список отчетов, связанных с задачами
+        totalPages, // Общее количество страниц для пагинации
+        seTasksList, // Функция для обновления списка задач
+        handleChange, // Функция для обработки изменения текущей страницы в пагинации
+        currentPage, // Текущая страница в пагинации
+        limit, // Лимит задач на одной странице
+        offset, // Смещение для пагинации
+        setOffset, // Функция для обновления смещения
+        setLimit, // Функция для обновления лимита задач на странице
+        setCurrentPage, // Функция для обновления текущей страницы
+        createTask, // Функция для создания новой задачи
+        addReportToTask, // Функция Для добавления отчета к задаче
+        getTaskDetails, // Функция для получения деталей задачи
+        createSubtask, // Функция для создания подзадачи
+        updateBreadcrumbPath, // Функция для обновления пути хлебной крошки
+        goBackInBreadcrumb, // Функция для возврата к предыдущей папке
+        breadcrumbPath, // Путь хлебной крошки
+        deleteTask, // Функция для удаления задачи
+        deleteReport, // Функция для удаления отчета
+        draggingList,
+        updateDraggingList
     };
 };
 
