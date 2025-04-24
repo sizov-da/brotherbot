@@ -31,15 +31,16 @@ class TaskStore {
         FOR task IN tasks
           FILTER task.userID == ${userID}
           FILTER task.parentTaskID == (${parentTaskID} == null ? "base" : ${parentTaskID})
-          SORT task._key ASC
+         
           RETURN MERGE(task, { type: "task" }),
 
         FOR report IN reports
           FILTER report.userID == ${userID}
           FILTER report.parentTaskID == (${parentTaskID} == null ? "unknown" : ${parentTaskID})
-          SORT report._key ASC
+       
           RETURN MERGE(report, { type: "report" })
     )
+    SORT item.sorting ASC
     LIMIT ${offset}, ${limit}
     RETURN item
     `;
@@ -100,26 +101,16 @@ class TaskStore {
    */
   async findAllTasksForUser(userID, limit = 10, offset = 0) {
     console.log("#7 tasks_limit_offset", { limit, offset }); // Здесь вы можете использовать limit и offset
-    // const taskslist = await this.db.query(aql`
-    //   FOR task IN tasks
-    //       FILTER task.userID == ${userID}
-    //       SORT task._key ASC
-    //       LIMIT ${offset}, ${limit}
-    //       RETURN task
-    // `);
     const allTasksAndReports = await this.db.query(aql`
         FOR item IN UNION(
           FOR task IN tasks
-            FILTER task.userID == ${userID}
-            SORT task._key ASC
-          
+            FILTER task.userID == ${userID}   
             RETURN MERGE(task, { type: "task" }),
           FOR report IN reports
             FILTER report.userID == ${userID}
-            SORT report._key ASC
-           
             RETURN MERGE(report, { type: "report" })
         )
+         SORT item.sorting ASC
          LIMIT ${offset}, ${limit}
         RETURN item
     `);
@@ -167,5 +158,46 @@ class TaskStore {
     // Создаем новый документ в коллекции 'tasks'
     await this.collection.save(task);
   }
+
+
+  async updateTask(task) {
+    try {
+      const taskId = task._key;
+
+      // Проверяем существование задачи
+      const exists = await this.db.collection("tasks").documentExists(taskId);
+      if (!exists) {
+        throw new Error(`Задача с ID ${taskId} не найдена.`);
+      }
+
+      // Обновляем задачу
+      await this.db.collection("tasks").update(taskId, task);
+      console.log(`Задача ${taskId} успешно обновлена.`);
+    } catch (error) {
+      console.error("Ошибка при обновлении задачи:", error);
+      throw error;
+    }
+  }
+
+  async updateReport(report) {
+    try {
+      const reportId = report._key;
+
+      // Проверяем существование отчета
+      const exists = await this.db.collection("reports").documentExists(reportId);
+      if (!exists) {
+        throw new Error(`Отчет с ID ${reportId} не найден.`);
+      }
+
+      // Обновляем отчет
+      await this.db.collection("reports").update(reportId, report);
+      console.log(`Отчет ${reportId} успешно обновлен.`);
+    } catch (error) {
+      console.error("Ошибка при обновлении отчета:", error);
+      throw error;
+    }
+  }
+
+
 }
 module.exports = { TaskStore };

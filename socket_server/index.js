@@ -331,7 +331,6 @@ io.on("connection", async (socket) => {
 
                 // Удаление задачи
                 socket.on("delete_task", async (task) => {
-
                     console.log("#7 DELETE task", task);
                     try {
                         await taskStore.deleteTask(task.taskId); // Реализуйте метод deleteTask в taskStore
@@ -354,6 +353,32 @@ io.on("connection", async (socket) => {
                         socket.emit("report_deleted", { success: false, error });
                     }
                 });
+
+                // обновление задачи
+
+                socket.on("update_task", async (task) => {
+                    console.log("#8 UPDATE task", task);
+                    try {
+                        await taskStore.updateTask(task);
+                        socket.emit("task_updated", { success: true, task });
+                    } catch (error) {
+                        console.error("Error updating task:", error);
+                        socket.emit("task_updated", { success: false, error });
+                    }
+                });
+                // обновление отчета
+
+                socket.on("update_report", async (report) => {
+                    console.log("#8 UPDATE report", report);
+                    try {
+                        await taskStore.updateReport(report);
+                        socket.emit("report_updated", { success: true, report });
+                    } catch (error) {
+                        console.error("Error updating report:", error);
+                        socket.emit("report_updated", { success: false, error });
+                    }
+                })
+
 
                 // ========== END TASK - SAVE DATA - TASK COMPONENT =============
 

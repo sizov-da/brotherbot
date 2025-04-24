@@ -379,7 +379,13 @@ const useSocket = (props: useSocketPropsType) => {
         socket.emit("delete_report", {reportId:reportId, parentTaskID: selectedTaskID});
 
     };
+    const updateTask = (task: any) => {
+        socket.emit("update_task", task);
+    }
 
+    const updateReport = (report: any) => {
+        socket.emit("update_report", report);
+    }
 
     // useEffect(() => {
     //     // Обработчик удаления задачи
@@ -642,7 +648,7 @@ const useSocket = (props: useSocketPropsType) => {
             // Обработчик удаления задачи
             socket.on("task_deleted", ({ success, taskId }) => {
                 if (success) {
-                    seTasksList((prevTasks: TaskType[]) => prevTasks.filter((task: TaskType) => task._id !== taskId));
+                    console.log(`Task ${taskId} deleted successfully`);
                 } else {
                     console.error("Failed to delete task");
                 }
@@ -739,7 +745,10 @@ const useSocket = (props: useSocketPropsType) => {
         deleteTask, // Функция для удаления задачи
         deleteReport, // Функция для удаления отчета
         draggingList,
-        updateDraggingList
+        updateDraggingList,
+        updateTask, // Функция для обновления задачи
+        updateReport // Функция для обновления отчета
+
     };
 };
 

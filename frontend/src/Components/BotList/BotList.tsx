@@ -49,7 +49,8 @@ const BotList = ({ props, attachmentsCount }: any) => {
         breadcrumbPath,
         deleteTask, // Функция для удаления задачи
         deleteReport, // Функция для удаления отчета
-        // draggingList, updateDraggingList
+        updateTask,
+        updateReport,
     } = useSocket(props);
 
 
@@ -151,7 +152,7 @@ const BotList = ({ props, attachmentsCount }: any) => {
         image: "task", // Пример изображения
         description: "Новое дело",
         status: "pending",
-        sort: 1,
+        sorting: tasksList.tasks.length + 1,
         createdAt: new Date().toISOString(),
     });
 
@@ -164,14 +165,14 @@ const BotList = ({ props, attachmentsCount }: any) => {
         description: "Новый отчет",
         title: text,
         timeSpent: 2, // Примерное время
-        sort: 2,
+        sorting: tasksList.tasks.length + 1,
         resourcesUsed: "Ресурсы", // Пример ресурсов
         createdAt: new Date().toISOString(),
     });
 
     console.log('#1 BotList', { buttonClicked, tasksList, thisUserData });
     // Удаление элемента из списка
-    const removeFromList = (index: number, list: any[], updateList: (newList: any[]) => void) => {
+    const removeFromList = ( index: number, list: any[] ) => {
         console.log("#200 удаляю", list, index);
 
         if (!Array.isArray(list)) {
@@ -188,7 +189,7 @@ const BotList = ({ props, attachmentsCount }: any) => {
         list.splice(index, 1);
         seTasksList({
                         tasks: list,
-                        total: list.length
+                        total: tasksList.total - 1
                     });
         if (itemToRemove.image === "task") {
             console.log("#7 DELETE task", itemToRemove._key);
@@ -205,16 +206,45 @@ const BotList = ({ props, attachmentsCount }: any) => {
     // Перемещение элемента в списке
     const reorderList = (
         { from, to }: { from: number; to: number },
-        list: any[],
-        updateList: (newList: any[]) => void
+        list: any[]
     ) => {
 
         console.log("#200 перемещаю", list, from, to);
+//         updateTask,
+//         updateReport,
+
+        console.log("#200 перезаписываю", list[from]," на ", to +1);
+        console.log("#200 заменяя на ", list[to]," на ", from +1);
+
+
+        list[to].sorting = from +1
+        list[from].sorting = to +1
+
+
+        // Отправляем изменения на сервер
+        if (list[to].image === "task") {
+            updateTask(list[to]);
+        } else if (list[to].image === "report") {
+            updateReport(list[to]);
+        }
+
+        if (list[from].image === "task") {
+            updateTask(list[from]);
+        } else if (list[from].image === "report") {
+            updateReport(list[from]);
+        }
+
 
         const updatedList = [...list];
         const [movedItem] = updatedList.splice(from, 1); // Удаляем элемент с позиции `from`
         updatedList.splice(to, 0, movedItem); // Вставляем элемент на позицию `to`
-        updateList(updatedList); // Обновляем состояние
+
+        console.log("#200 Переместил", list, from, to);
+
+        seTasksList({
+            tasks: updatedList,
+            total: tasksList.total
+        }); // Обновляем состояние
     };
 
 
@@ -286,8 +316,8 @@ const BotList = ({ props, attachmentsCount }: any) => {
                             }
                             onClick={() => handleTaskClick(task._key)} // Отображение подзадач
                             subtitle={task.description}
-                            onRemove={() => removeFromList(idx, draggingList, updateDraggingList)} // Используем idx
-                            onDragFinish={({ from, to }) => reorderList({ from, to }, draggingList, updateDraggingList)}
+                            onRemove={() => removeFromList(idx, draggingList)} // Используем idx
+                            onDragFinish={({ from, to }) => reorderList({ from, to }, draggingList)}
                             mode="removable"
                             draggable
 
