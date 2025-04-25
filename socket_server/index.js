@@ -1,13 +1,26 @@
+const fs = require("fs");
+const https = require("https");
 const httpServer = require("http").createServer();
 const { setupWorker } = require("@socket.io/sticky");
 const databaseInitializer = require("./infrastructure/database");
 
+// Чтение SSL сертификатов
+const httpsOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/test.brotherbot.ru/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/test.brotherbot.ru/fullchain.pem'),
+    ca: fs.readFileSync('/etc/letsencrypt/live/test.brotherbot.ru/chain.pem')
+};
+// Создаем HTTPS сервер вместо HTTP
+const httpsServer = https.createServer(httpsOptions);
 
-const io = require("socket.io")(httpServer, {
+
+const io = require("socket.io")(httpsServer, {
     cors: {
-        // origin: "http://localhost:8080",
-        // origin: "http://localhost:3001",
         origin: "*",
+        // Для продакшена рекомендуется указать конкретные домены вместо "*"
+        // origin: ["https://test.brotherbot.ru", "http://localhost:3000"],
+        methods: ["GET", "POST"],
+        credentials: true
     },
 });
 
@@ -402,5 +415,12 @@ io.on("connection", async (socket) => {
 
 
 });
+
+// Запускаем HTTPS сервер на порту 3000
+httpsServer.listen(3000, () => {
+    console.log("HTTPS и Socket.IO сервер запущен на порту 3000");
+});
+
+setupWorker(io);
 
 setupWorker(io);
