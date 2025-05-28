@@ -422,5 +422,3 @@ httpsServer.listen(3000, () => {
 });
 
 setupWorker(io);
-
-setupWorker(io);
